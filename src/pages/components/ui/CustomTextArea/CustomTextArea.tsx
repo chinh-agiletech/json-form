@@ -17,7 +17,7 @@ const CustomTextArea = (props: WidgetProps) => {
     placeholder,
   } = props;
 
-  const maxLength = schema.maxLength || 250;
+  const maxLength = schema?.maxLength || 250;
   const currentLength = value ? value.length : 0;
   const rows = options?.rows || 4;
 

@@ -36,8 +36,8 @@ const CustomNumberWidget = (props: WidgetProps) => {
         required={required}
         disabled={disabled}
         readOnly={readonly}
-        min={schema.minimum}
-        max={schema.maximum}
+        min={schema?.minimum}
+        max={schema?.maximum}
         step={(typeof options?.step === "number" || typeof options?.step === "string") ? options.step : 1}
         onChange={(event) => {
           const newValue = event.target.value;
