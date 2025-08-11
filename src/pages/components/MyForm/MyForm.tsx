@@ -26,12 +26,13 @@ interface ValidationError {
 interface MyFormProps {
   onFormChange?: (data: FormData) => void;
   onValidation?: (isValid: boolean, errors: ValidationError[]) => void;
+  resetTrigger?: number; // Add trigger to reset form
 }
 
-export default function UnitTestScoreForm({ onFormChange, onValidation }: MyFormProps) {
+export default function UnitTestScoreForm({ onFormChange, onValidation, resetTrigger }: MyFormProps) {
   const formUiSchema = createFormUiSchema(styles);
   
-  const [currentData, setCurrentData] = React.useState<FormData>({
+  const initialFormData = {
     unitTestScore: 0,
     levelFit: '',
     progressCheck: '',
@@ -40,7 +41,9 @@ export default function UnitTestScoreForm({ onFormChange, onValidation }: MyForm
     teacherCommentENG: '',
     teacherCommentVIE: '',
     parentsPartnership: '',
-  });
+  };
+  
+  const [currentData, setCurrentData] = React.useState<FormData>(initialFormData);
 
   const onSubmit = ({ formData }: IChangeEvent<FormData>) => {
     alert(JSON.stringify(formData, null, 2));
@@ -76,6 +79,13 @@ export default function UnitTestScoreForm({ onFormChange, onValidation }: MyForm
   React.useEffect(() => {
     validateForm();
   }, [validateForm]);
+
+  // Reset form when resetTrigger changes
+  React.useEffect(() => {
+    if (resetTrigger !== undefined && resetTrigger > 0) {
+      setCurrentData(initialFormData);
+    }
+  }, [resetTrigger]);
 
   return (
     <div className={styles.formContainer}>

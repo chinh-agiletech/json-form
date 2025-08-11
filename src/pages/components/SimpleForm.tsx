@@ -42,6 +42,7 @@ export default function SimpleForm() {
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [isFormValid, setIsFormValid] = useState(false);
+  const [resetCounter, setResetCounter] = useState(0);
 
   const [myFormData, setMyFormData] = useState<MyFormData>({
     unitTestScore: 0,
@@ -67,12 +68,29 @@ export default function SimpleForm() {
   };
 
   const handleSubmit = () => {
-
     const combinedData: CombinedFormData = {
       ...formData,
       ...myFormData,
     };
     console.log("Combined Form Data:", combinedData);
+    
+    if(combinedData) {
+      // Reset MyForm data
+      setMyFormData({
+        unitTestScore: 0,
+        levelFit: "",
+        progressCheck: "",
+        passPrediction: "",
+        recommendation: "",
+        teacherCommentENG: "",
+        teacherCommentVIE: "",
+        parentsPartnership: "",
+      });
+      
+      // Trigger reset in MyForm component
+      setResetCounter(prev => prev + 1);
+      setIsFormValid(false);
+    }
   };
 
   const inputStyle = {
@@ -245,6 +263,7 @@ export default function SimpleForm() {
         <MyForm 
           onFormChange={handleMyFormChange} 
           onValidation={handleValidation}
+          resetTrigger={resetCounter}
         />
 
         {/* Submit button */}
