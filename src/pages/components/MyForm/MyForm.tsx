@@ -16,11 +16,19 @@ interface FormData {
   parentsPartnership: string;
 }
 
-interface MyFormProps {
-  onFormChange?: (data: FormData) => void;
+interface ValidationError {
+  message?: string;
+  stack?: string;
+  name?: string;
+  property?: string;
 }
 
-export default function UnitTestScoreForm({ onFormChange }: MyFormProps) {
+interface MyFormProps {
+  onFormChange?: (data: FormData) => void;
+  onValidation?: (isValid: boolean, errors: ValidationError[]) => void;
+}
+
+export default function UnitTestScoreForm({ onFormChange, onValidation }: MyFormProps) {
   const formUiSchema = createFormUiSchema(styles);
   
   const [currentData, setCurrentData] = React.useState<FormData>({
@@ -45,6 +53,30 @@ export default function UnitTestScoreForm({ onFormChange }: MyFormProps) {
     }
   };
 
+  const onError = (errors: ValidationError[]) => {
+    onValidation?.(false, errors);
+  };
+
+  // Validate form data manually
+  const validateForm = React.useCallback(() => {
+    const result = validator.validateFormData(currentData, formSchema);
+    const hasErrors = result.errors && result.errors.length > 0;
+    
+    // Additional check for empty required fields
+    const requiredFields = ['levelFit', 'progressCheck', 'passPrediction', 'recommendation', 'teacherCommentENG', 'teacherCommentVIE', 'parentsPartnership'];
+    const hasEmptyRequiredFields = requiredFields.some(field => !currentData[field as keyof FormData] || currentData[field as keyof FormData].toString().trim() === '');
+    const hasInvalidUnitScore = currentData.unitTestScore <= 0;
+    
+    const isValid = !hasErrors && !hasEmptyRequiredFields && !hasInvalidUnitScore;
+    onValidation?.(isValid, (result.errors || []) as ValidationError[]);
+    return isValid;
+  }, [currentData, onValidation]);
+
+  // Call validation whenever data changes
+  React.useEffect(() => {
+    validateForm();
+  }, [validateForm]);
+
   return (
     <div className={styles.formContainer}>
       <Form<FormData>
@@ -53,7 +85,10 @@ export default function UnitTestScoreForm({ onFormChange }: MyFormProps) {
         validator={validator}
         onSubmit={onSubmit}
         onChange={onChange}
+        onError={onError}
         formData={currentData}
+        liveValidate={true}
+        showErrorList={false}
       />
     </div>
   );

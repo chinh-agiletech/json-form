@@ -24,6 +24,11 @@ interface MyFormData {
 
 interface CombinedFormData extends FormData, MyFormData {}
 
+interface ValidationError {
+  message?: string;
+  stack?: string;
+}
+
 export default function SimpleForm() {
   const initialFormData: FormData = {
     attendance: "99.9%",
@@ -36,6 +41,7 @@ export default function SimpleForm() {
   };
 
   const [formData, setFormData] = useState<FormData>(initialFormData);
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const [myFormData, setMyFormData] = useState<MyFormData>({
     unitTestScore: 0,
@@ -56,13 +62,19 @@ export default function SimpleForm() {
     setMyFormData(data);
   };
 
+  const handleValidation = (isValid: boolean, errors: ValidationError[]) => {
+    setIsFormValid(isValid);
+    // We're not using errors parameter but keeping it for interface compatibility
+    console.log('Form validation:', isValid, errors);
+  };
+
   const handleSubmit = () => {
+
     const combinedData: CombinedFormData = {
       ...formData,
       ...myFormData,
     };
     console.log("Combined Form Data:", combinedData);
-    alert(JSON.stringify(combinedData, null, 2));
   };
 
   const inputStyle = {
@@ -232,7 +244,10 @@ export default function SimpleForm() {
           </div>
         </div>
 
-        <MyForm onFormChange={handleMyFormChange} />
+        <MyForm 
+          onFormChange={handleMyFormChange} 
+          onValidation={handleValidation}
+        />
 
         {/* Submit button */}
         <div
@@ -263,15 +278,18 @@ export default function SimpleForm() {
             type="button"
             style={{
               padding: "12px 30px",
-              backgroundColor: "#3b82f6",
-              color: "white",
+              backgroundColor: isFormValid ? "#3b82f6" : "#d1d5db",
+              color: isFormValid ? "white" : "#6b7280",
               border: "none",
               borderRadius: "50px",
               fontSize: "16px",
               fontWeight: "500",
-              cursor: "pointer",
+              cursor: isFormValid ? "pointer" : "not-allowed",
+              opacity: isFormValid ? 1 : 0.8,
+              transition: "all 0.2s ease",
             }}
             onClick={handleSubmit}
+            disabled={!isFormValid}
           >
             Submit
           </button>
