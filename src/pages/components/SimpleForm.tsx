@@ -73,8 +73,8 @@ export default function SimpleForm() {
       ...myFormData,
     };
     console.log("Combined Form Data:", combinedData);
-    
-    if(combinedData) {
+
+    if (combinedData) {
       // Reset MyForm data
       setMyFormData({
         unitTestScore: 0,
@@ -86,9 +86,9 @@ export default function SimpleForm() {
         teacherCommentVIE: "",
         parentsPartnership: "",
       });
-      
+
       // Trigger reset in MyForm component
-      setResetCounter(prev => prev + 1);
+      setResetCounter((prev) => prev + 1);
       setIsFormValid(false);
     }
   };
@@ -177,7 +177,9 @@ export default function SimpleForm() {
         {/* Top row - 4 columns */}
         <div style={{ marginBottom: "16px" }}>
           <div className="form-row-4-col">
-            <label style={labelStyle}>Attendance <span style={{ color: "red" }}>*</span></label>
+            <label style={labelStyle}>
+              Attendance <span style={{ color: "red" }}>*</span>
+            </label>
             <input
               type="text"
               value={formData.attendance}
@@ -187,7 +189,9 @@ export default function SimpleForm() {
             />
           </div>
           <div className="form-row-4-col">
-            <label style={labelStyle}>Age <span style={{ color: "red" }}>*</span></label>
+            <label style={labelStyle}>
+              Age <span style={{ color: "red" }}>*</span>
+            </label>
             <input
               type="text"
               value={formData.age}
@@ -197,7 +201,9 @@ export default function SimpleForm() {
             />
           </div>
           <div className="form-row-4-col">
-            <label style={labelStyle}>Workbook Completion <span style={{ color: "red" }}>*</span></label>
+            <label style={labelStyle}>
+              Workbook Completion <span style={{ color: "red" }}>*</span>
+            </label>
             <input
               type="text"
               value={formData.workbookCompletion}
@@ -209,7 +215,9 @@ export default function SimpleForm() {
             />
           </div>
           <div className="form-row-4-col">
-            <label style={labelStyle}>Workbook Score <span style={{ color: "red" }}>*</span></label>
+            <label style={labelStyle}>
+              Workbook Score <span style={{ color: "red" }}>*</span>
+            </label>
             <input
               type="text"
               value={formData.workbookScore}
@@ -225,7 +233,9 @@ export default function SimpleForm() {
         {/* Second row - 3 columns */}
         <div style={{ marginBottom: "16px" }}>
           <div className="form-row-4-col">
-            <label style={labelStyle}>App Score <span style={{ color: "red" }}>*</span></label>
+            <label style={labelStyle}>
+              App Score <span style={{ color: "red" }}>*</span>
+            </label>
             <input
               type="text"
               value={formData.appScore}
@@ -235,7 +245,9 @@ export default function SimpleForm() {
             />
           </div>
           <div className="form-row-4-col">
-            <label style={labelStyle}>App Completion <span style={{ color: "red" }}>*</span></label>
+            <label style={labelStyle}>
+              App Completion <span style={{ color: "red" }}>*</span>
+            </label>
             <input
               type="text"
               value={formData.appCompletion}
@@ -247,7 +259,9 @@ export default function SimpleForm() {
             />
           </div>
           <div className="form-row-4-col">
-            <label style={labelStyle}>Lesson Outcome <span style={{ color: "red" }}>*</span></label>
+            <label style={labelStyle}>
+              Lesson Outcome <span style={{ color: "red" }}>*</span>
+            </label>
             <input
               type="text"
               value={formData.lessonOutcome}
@@ -260,8 +274,8 @@ export default function SimpleForm() {
           </div>
         </div>
 
-        <MyForm 
-          onFormChange={handleMyFormChange} 
+        <MyForm
+          onFormChange={handleMyFormChange}
           onValidation={handleValidation}
           resetTrigger={resetCounter}
         />

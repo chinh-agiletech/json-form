@@ -1,9 +1,9 @@
-import React from 'react';
-import Form, { IChangeEvent } from '@rjsf/core';
-import validator from '@rjsf/validator-ajv8';
-import { formSchema } from '../../../schemas/formSchema';
-import { createFormUiSchema } from '../../../schemas/formUiSchema';
-import styles from './MyForm.module.css';
+import React from "react";
+import Form, { IChangeEvent } from "@rjsf/core";
+import validator from "@rjsf/validator-ajv8";
+import { formSchema } from "../../../schemas/formSchema";
+import { createFormUiSchema } from "../../../schemas/formUiSchema";
+import styles from "./MyForm.module.css";
 
 interface FormData {
   unitTestScore: number;
@@ -29,21 +29,26 @@ interface MyFormProps {
   resetTrigger?: number; // Add trigger to reset form
 }
 
-export default function UnitTestScoreForm({ onFormChange, onValidation, resetTrigger }: MyFormProps) {
+export default function UnitTestScoreForm({
+  onFormChange,
+  onValidation,
+  resetTrigger,
+}: MyFormProps) {
   const formUiSchema = createFormUiSchema(styles);
-  
+
   const initialFormData = {
     unitTestScore: 0,
-    levelFit: '',
-    progressCheck: '',
-    passPrediction: '',
-    recommendation: '',
-    teacherCommentENG: '',
-    teacherCommentVIE: '',
-    parentsPartnership: '',
+    levelFit: "",
+    progressCheck: "",
+    passPrediction: "",
+    recommendation: "",
+    teacherCommentENG: "",
+    teacherCommentVIE: "",
+    parentsPartnership: "",
   };
-  
-  const [currentData, setCurrentData] = React.useState<FormData>(initialFormData);
+
+  const [currentData, setCurrentData] =
+    React.useState<FormData>(initialFormData);
 
   const onSubmit = ({ formData }: IChangeEvent<FormData>) => {
     alert(JSON.stringify(formData, null, 2));
@@ -64,13 +69,26 @@ export default function UnitTestScoreForm({ onFormChange, onValidation, resetTri
   const validateForm = React.useCallback(() => {
     const result = validator.validateFormData(currentData, formSchema);
     const hasErrors = result.errors && result.errors.length > 0;
-    
+
     // Additional check for empty required fields
-    const requiredFields = ['levelFit', 'progressCheck', 'passPrediction', 'recommendation', 'teacherCommentENG', 'teacherCommentVIE', 'parentsPartnership'];
-    const hasEmptyRequiredFields = requiredFields.some(field => !currentData[field as keyof FormData] || currentData[field as keyof FormData].toString().trim() === '');
+    const requiredFields = [
+      "levelFit",
+      "progressCheck",
+      "passPrediction",
+      "recommendation",
+      "teacherCommentENG",
+      "teacherCommentVIE",
+      "parentsPartnership",
+    ];
+    const hasEmptyRequiredFields = requiredFields.some(
+      (field) =>
+        !currentData[field as keyof FormData] ||
+        currentData[field as keyof FormData].toString().trim() === ""
+    );
     const hasInvalidUnitScore = currentData.unitTestScore <= 0;
-    
-    const isValid = !hasErrors && !hasEmptyRequiredFields && !hasInvalidUnitScore;
+
+    const isValid =
+      !hasErrors && !hasEmptyRequiredFields && !hasInvalidUnitScore;
     onValidation?.(isValid, (result.errors || []) as ValidationError[]);
     return isValid;
   }, [currentData, onValidation]);
