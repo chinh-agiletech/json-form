@@ -8,7 +8,6 @@ const CustomTextArea = (props: WidgetProps) => {
     required,
     disabled,
     readonly,
-    label,
     onChange,
     onBlur,
     onFocus,

@@ -8,7 +8,6 @@ const CustomNumberWidget = (props: WidgetProps) => {
     required,
     disabled,
     readonly,
-    label,
     onChange,
     onBlur,
     onFocus,

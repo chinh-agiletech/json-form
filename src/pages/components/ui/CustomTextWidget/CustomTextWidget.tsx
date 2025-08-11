@@ -12,8 +12,6 @@ const CustomTextWidget = (props: WidgetProps) => {
     onChange,
     onBlur,
     onFocus,
-    options,
-    schema,
     rawErrors = [],
     placeholder,
   } = props;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import MyForm from "./MyForm";
+import MyForm from "./MyForm/MyForm";
 
 interface FormData {
   attendance: string;
@@ -54,16 +54,6 @@ export default function SimpleForm() {
 
   const handleMyFormChange = (data: MyFormData) => {
     setMyFormData(data);
-  };
-
-  const handleTextAreaChange = (
-    field: keyof FormData,
-    value: string,
-    maxLength: number = 250
-  ) => {
-    if (value.length <= maxLength) {
-      setFormData((prev) => ({ ...prev, [field]: value }));
-    }
   };
 
   const handleSubmit = () => {
