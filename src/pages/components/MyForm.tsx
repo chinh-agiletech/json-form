@@ -37,8 +37,7 @@ const schema: JSONSchema7 = {
     unitTestScore: {
       type: "number",
       title: "Unit test score",
-      minimum: 0,
-      maximum: 100
+      minimum: 0
     },
     // Text areas - 2 columns layout
     levelFit: {
@@ -90,55 +89,6 @@ const uiSchema = {
     "teacherCommentENG", "teacherCommentVIE",
     "parentsPartnership"
   ],
-  attendance: {
-    "ui:widget": CustomTextWidget,
-    "ui:placeholder": "99.9%",
-    "ui:options": {
-      classNames: "form-row-4-col"
-    }
-  },
-  age: {
-    "ui:widget": CustomTextWidget,
-    "ui:placeholder": "6",
-    "ui:options": {
-      classNames: "form-row-4-col"
-    }
-  },
-  workbookCompletion: {
-    "ui:widget": CustomTextWidget,
-    "ui:placeholder": "99.9%", 
-    "ui:options": {
-      classNames: "form-row-4-col"
-    }
-  },
-  workbookScore: {
-    "ui:widget": CustomTextWidget,
-    "ui:placeholder": "99.9%",
-    "ui:options": {
-      classNames: "form-row-4-col"
-    }
-  },
-  appScore: {
-    "ui:widget": CustomTextWidget,
-    "ui:placeholder": "99.9%",
-    "ui:options": {
-      classNames: "form-row-3-col"
-    }
-  },
-  appCompletion: {
-    "ui:widget": CustomTextWidget,
-    "ui:placeholder": "99.9%",
-    "ui:options": {
-      classNames: "form-row-3-col"
-    }
-  },
-  lessonOutcome: {
-    "ui:widget": CustomTextWidget,
-    "ui:placeholder": "97.5",
-    "ui:options": {
-      classNames: "form-row-3-col"
-    }
-  },
   unitTestScore: {
     "ui:widget": CustomNumberWidget,
     "ui:placeholder": "Enter number",

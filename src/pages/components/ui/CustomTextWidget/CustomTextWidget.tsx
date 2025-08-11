@@ -31,7 +31,8 @@ const CustomTextWidget = (props: WidgetProps) => {
             fontSize: "14px"
           }}
         >
-          {label}{required ? " *" : ""}
+          {label}
+          {required && <span style={{ color: "red" }}> *</span>}
         </label>
       )}
       <input

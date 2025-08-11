@@ -66,13 +66,13 @@ export default function SimpleForm() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSubmit = () => {
     const combinedData: CombinedFormData = {
       ...formData,
       ...myFormData,
     };
     console.log("Combined Form Data:", combinedData);
+    alert(JSON.stringify(combinedData, null, 2));
   };
 
   const inputStyle = {
@@ -94,13 +94,6 @@ export default function SimpleForm() {
     fontSize: "14px",
   };
 
-  const textareaStyle = {
-    ...inputStyle,
-    resize: "vertical" as const,
-    minHeight: "80px",
-    lineHeight: "1.5",
-  };
-
   return (
     <div
       style={{
@@ -118,6 +111,7 @@ export default function SimpleForm() {
           margin-right: 2.66%;
           vertical-align: top;
           margin-bottom: 16px;
+          background-color: #f9fafb;
         }
         .form-row-4-col:nth-child(4n) {
           margin-right: 0;
@@ -161,29 +155,31 @@ export default function SimpleForm() {
         }
       `}</style>
 
-      <form onSubmit={handleSubmit}>
+      <div>
         {/* Top row - 4 columns */}
         <div style={{ marginBottom: "16px" }}>
           <div className="form-row-4-col">
-            <label style={labelStyle}>Attendance *</label>
+            <label style={labelStyle}>Attendance <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               value={formData.attendance}
               onChange={(e) => handleInputChange("attendance", e.target.value)}
               style={inputStyle}
+              disabled={true}
             />
           </div>
           <div className="form-row-4-col">
-            <label style={labelStyle}>Age *</label>
+            <label style={labelStyle}>Age <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               value={formData.age}
               onChange={(e) => handleInputChange("age", e.target.value)}
               style={inputStyle}
+              disabled={true}
             />
           </div>
           <div className="form-row-4-col">
-            <label style={labelStyle}>Workbook Completion *</label>
+            <label style={labelStyle}>Workbook Completion <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               value={formData.workbookCompletion}
@@ -191,10 +187,11 @@ export default function SimpleForm() {
                 handleInputChange("workbookCompletion", e.target.value)
               }
               style={inputStyle}
+              disabled={true}
             />
           </div>
           <div className="form-row-4-col">
-            <label style={labelStyle}>Workbook Score *</label>
+            <label style={labelStyle}>Workbook Score <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               value={formData.workbookScore}
@@ -202,23 +199,25 @@ export default function SimpleForm() {
                 handleInputChange("workbookScore", e.target.value)
               }
               style={inputStyle}
+              disabled={true}
             />
           </div>
         </div>
 
         {/* Second row - 3 columns */}
         <div style={{ marginBottom: "16px" }}>
-          <div className="form-row-3-col">
-            <label style={labelStyle}>App Score *</label>
+          <div className="form-row-4-col">
+            <label style={labelStyle}>App Score <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               value={formData.appScore}
               onChange={(e) => handleInputChange("appScore", e.target.value)}
               style={inputStyle}
+              disabled={true}
             />
           </div>
-          <div className="form-row-3-col">
-            <label style={labelStyle}>App Completion *</label>
+          <div className="form-row-4-col">
+            <label style={labelStyle}>App Completion <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               value={formData.appCompletion}
@@ -226,10 +225,11 @@ export default function SimpleForm() {
                 handleInputChange("appCompletion", e.target.value)
               }
               style={inputStyle}
+              disabled={true}
             />
           </div>
-          <div className="form-row-3-col">
-            <label style={labelStyle}>Lesson Outcome *</label>
+          <div className="form-row-4-col">
+            <label style={labelStyle}>Lesson Outcome <span style={{ color: "red" }}>*</span></label>
             <input
               type="text"
               value={formData.lessonOutcome}
@@ -237,6 +237,7 @@ export default function SimpleForm() {
                 handleInputChange("lessonOutcome", e.target.value)
               }
               style={inputStyle}
+              disabled={true}
             />
           </div>
         </div>
@@ -269,7 +270,7 @@ export default function SimpleForm() {
             Cancel
           </button>
           <button
-            type="submit"
+            type="button"
             style={{
               padding: "12px 30px",
               backgroundColor: "#3b82f6",
@@ -280,11 +281,12 @@ export default function SimpleForm() {
               fontWeight: "500",
               cursor: "pointer",
             }}
+            onClick={handleSubmit}
           >
             Submit
           </button>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
