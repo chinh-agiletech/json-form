@@ -12,7 +12,7 @@ interface FormData {
 }
 
 interface MyFormData {
-  unitTestScore: number;
+  unitTestScore: string;
   levelFit: string;
   progressCheck: string;
   passPrediction: string;
@@ -29,7 +29,11 @@ interface ValidationError {
   stack?: string;
 }
 
-export default function SimpleForm() {
+interface SimpleFormProps {
+  onClose?: () => void;
+}
+
+export default function SimpleForm({ onClose }: SimpleFormProps) {
   const initialFormData: FormData = {
     attendance: "99.9%",
     age: "6",
@@ -45,7 +49,7 @@ export default function SimpleForm() {
   const [resetCounter, setResetCounter] = useState(0);
 
   const [myFormData, setMyFormData] = useState<MyFormData>({
-    unitTestScore: 0,
+    unitTestScore: "",
     levelFit: "",
     progressCheck: "",
     passPrediction: "",
@@ -77,7 +81,7 @@ export default function SimpleForm() {
     if (combinedData) {
       // Reset MyForm data
       setMyFormData({
-        unitTestScore: 0,
+        unitTestScore: "",
         levelFit: "",
         progressCheck: "",
         passPrediction: "",
@@ -90,6 +94,11 @@ export default function SimpleForm() {
       // Trigger reset in MyForm component
       setResetCounter((prev) => prev + 1);
       setIsFormValid(false);
+
+      // Close modal if onClose is provided
+      if (onClose) {
+        onClose();
+      }
     }
   };
 
@@ -117,7 +126,6 @@ export default function SimpleForm() {
       style={{
         maxWidth: 1000,
         margin: "auto",
-        border: "1px solid #ccc",
         padding: "20px",
         borderRadius: "4px",
       }}
@@ -175,102 +183,106 @@ export default function SimpleForm() {
 
       <div>
         {/* Top row - 4 columns */}
-        <div style={{ marginBottom: "16px" }}>
-          <div className="form-row-4-col">
-            <label style={labelStyle}>
-              Attendance <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.attendance}
-              onChange={(e) => handleInputChange("attendance", e.target.value)}
-              style={inputStyle}
-              disabled={true}
-            />
+        <div style={{ border: "1px solid #d1d5db", borderRadius: "10px", padding: "10px" }}>
+          <div style={{ marginBottom: "16px" }}>
+            <div className="form-row-4-col">
+              <label style={labelStyle}>
+                Attendance <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.attendance}
+                onChange={(e) =>
+                  handleInputChange("attendance", e.target.value)
+                }
+                style={inputStyle}
+                disabled={true}
+              />
+            </div>
+            <div className="form-row-4-col">
+              <label style={labelStyle}>
+                Age <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.age}
+                onChange={(e) => handleInputChange("age", e.target.value)}
+                style={inputStyle}
+                disabled={true}
+              />
+            </div>
+            <div className="form-row-4-col">
+              <label style={labelStyle}>
+                Workbook Completion <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.workbookCompletion}
+                onChange={(e) =>
+                  handleInputChange("workbookCompletion", e.target.value)
+                }
+                style={inputStyle}
+                disabled={true}
+              />
+            </div>
+            <div className="form-row-4-col">
+              <label style={labelStyle}>
+                Workbook Score <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.workbookScore}
+                onChange={(e) =>
+                  handleInputChange("workbookScore", e.target.value)
+                }
+                style={inputStyle}
+                disabled={true}
+              />
+            </div>
           </div>
-          <div className="form-row-4-col">
-            <label style={labelStyle}>
-              Age <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.age}
-              onChange={(e) => handleInputChange("age", e.target.value)}
-              style={inputStyle}
-              disabled={true}
-            />
-          </div>
-          <div className="form-row-4-col">
-            <label style={labelStyle}>
-              Workbook Completion <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.workbookCompletion}
-              onChange={(e) =>
-                handleInputChange("workbookCompletion", e.target.value)
-              }
-              style={inputStyle}
-              disabled={true}
-            />
-          </div>
-          <div className="form-row-4-col">
-            <label style={labelStyle}>
-              Workbook Score <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.workbookScore}
-              onChange={(e) =>
-                handleInputChange("workbookScore", e.target.value)
-              }
-              style={inputStyle}
-              disabled={true}
-            />
-          </div>
-        </div>
 
-        {/* Second row - 3 columns */}
-        <div style={{ marginBottom: "16px" }}>
-          <div className="form-row-4-col">
-            <label style={labelStyle}>
-              App Score <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.appScore}
-              onChange={(e) => handleInputChange("appScore", e.target.value)}
-              style={inputStyle}
-              disabled={true}
-            />
-          </div>
-          <div className="form-row-4-col">
-            <label style={labelStyle}>
-              App Completion <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.appCompletion}
-              onChange={(e) =>
-                handleInputChange("appCompletion", e.target.value)
-              }
-              style={inputStyle}
-              disabled={true}
-            />
-          </div>
-          <div className="form-row-4-col">
-            <label style={labelStyle}>
-              Lesson Outcome <span style={{ color: "red" }}>*</span>
-            </label>
-            <input
-              type="text"
-              value={formData.lessonOutcome}
-              onChange={(e) =>
-                handleInputChange("lessonOutcome", e.target.value)
-              }
-              style={inputStyle}
-              disabled={true}
-            />
+          {/* Second row - 3 columns */}
+          <div>
+            <div className="form-row-4-col">
+              <label style={labelStyle}>
+                App Score <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.appScore}
+                onChange={(e) => handleInputChange("appScore", e.target.value)}
+                style={inputStyle}
+                disabled={true}
+              />
+            </div>
+            <div className="form-row-4-col">
+              <label style={labelStyle}>
+                App Completion <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.appCompletion}
+                onChange={(e) =>
+                  handleInputChange("appCompletion", e.target.value)
+                }
+                style={inputStyle}
+                disabled={true}
+              />
+            </div>
+            <div className="form-row-4-col">
+              <label style={labelStyle}>
+                Lesson Outcome <span style={{ color: "red" }}>*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.lessonOutcome}
+                onChange={(e) =>
+                  handleInputChange("lessonOutcome", e.target.value)
+                }
+                style={inputStyle}
+                disabled={true}
+              />
+            </div>
           </div>
         </div>
 
@@ -301,7 +313,12 @@ export default function SimpleForm() {
               fontWeight: "500",
               cursor: "pointer",
             }}
-            onClick={() => setFormData(initialFormData)}
+            onClick={() => {
+              setFormData(initialFormData);
+              if (onClose) {
+                onClose();
+              }
+            }}
           >
             Cancel
           </button>

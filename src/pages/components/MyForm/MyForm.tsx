@@ -6,7 +6,7 @@ import { createFormUiSchema } from "../../../schemas/formUiSchema";
 import styles from "./MyForm.module.css";
 
 interface FormData {
-  unitTestScore: number;
+  unitTestScore: string;
   levelFit: string;
   progressCheck: string;
   passPrediction: string;
@@ -37,7 +37,7 @@ export default function UnitTestScoreForm({
   const formUiSchema = createFormUiSchema(styles);
 
   const initialFormData = {
-    unitTestScore: 0,
+    unitTestScore: "",
     levelFit: "",
     progressCheck: "",
     passPrediction: "",
@@ -72,6 +72,7 @@ export default function UnitTestScoreForm({
 
     // Additional check for empty required fields
     const requiredFields = [
+      "unitTestScore",
       "levelFit",
       "progressCheck",
       "passPrediction",
@@ -85,10 +86,8 @@ export default function UnitTestScoreForm({
         !currentData[field as keyof FormData] ||
         currentData[field as keyof FormData].toString().trim() === ""
     );
-    const hasInvalidUnitScore = currentData.unitTestScore <= 0;
 
-    const isValid =
-      !hasErrors && !hasEmptyRequiredFields && !hasInvalidUnitScore;
+    const isValid = !hasErrors && !hasEmptyRequiredFields;
     onValidation?.(isValid, (result.errors || []) as ValidationError[]);
     return isValid;
   }, [currentData, onValidation]);

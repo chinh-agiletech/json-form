@@ -14,9 +14,9 @@ export const formSchema: JSONSchema7 = {
   ],
   properties: {
     unitTestScore: {
-      type: "number",
+      type: "string",
       title: "Unit test score",
-      minimum: 0
+      maxLength: 250,
     },
     levelFit: {
       type: "string",

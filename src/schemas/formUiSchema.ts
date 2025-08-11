@@ -1,4 +1,4 @@
-import CustomNumberWidget from '../pages/components/ui/CustomNumberWidget/CustomNumberWidget';
+import CustomTextWidget from '../pages/components/ui/CustomTextWidget/CustomTextWidget';
 import CustomTextArea from '../pages/components/ui/CustomTextArea/CustomTextArea';
 
 // Type for CSS module styles
@@ -19,11 +19,11 @@ export const createFormUiSchema = (_styles?: CSSModuleClasses) => ({
     "parentsPartnership"
   ],
   unitTestScore: {
-    "ui:widget": CustomNumberWidget,
-    "ui:placeholder": "Enter number",
+    "ui:widget": CustomTextWidget,
     "ui:options": {
       classNames: "form-single-col"
-    }
+    },
+    "ui:placeholder": "Enter number",
   },
   levelFit: {
     "ui:widget": CustomTextArea,

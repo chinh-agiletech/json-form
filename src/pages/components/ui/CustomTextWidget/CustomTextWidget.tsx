@@ -8,7 +8,6 @@ const CustomTextWidget = (props: WidgetProps) => {
     required,
     disabled,
     readonly,
-    label,
     onChange,
     onBlur,
     onFocus,
@@ -18,21 +17,6 @@ const CustomTextWidget = (props: WidgetProps) => {
 
   return (
     <div style={{ marginBottom: "16px" }}>
-      {label && (
-        <label 
-          htmlFor={id} 
-          style={{ 
-            display: "block", 
-            marginBottom: "6px", 
-            fontWeight: "500",
-            color: "#374151",
-            fontSize: "14px"
-          }}
-        >
-          {label}
-          {required && <span style={{ color: "red" }}> *</span>}
-        </label>
-      )}
       <input
         type="text"
         id={id}
