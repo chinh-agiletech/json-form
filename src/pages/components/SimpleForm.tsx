@@ -64,8 +64,6 @@ export default function SimpleForm() {
 
   const handleValidation = (isValid: boolean, errors: ValidationError[]) => {
     setIsFormValid(isValid);
-    // We're not using errors parameter but keeping it for interface compatibility
-    console.log('Form validation:', isValid, errors);
   };
 
   const handleSubmit = () => {

@@ -87,8 +87,9 @@ export default function UnitTestScoreForm({ onFormChange, onValidation }: MyForm
         onChange={onChange}
         onError={onError}
         formData={currentData}
-        liveValidate={true}
+        liveValidate={false}
         showErrorList={false}
+        noValidate={true}
       />
     </div>
   );
