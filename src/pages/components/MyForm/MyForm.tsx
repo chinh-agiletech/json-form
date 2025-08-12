@@ -10,13 +10,8 @@ import CustomNumberWidget from '../ui/CustomNumberWidget/CustomNumberWidget';
 
 interface FormData {
   unitTestScore: string;
-  levelFit: string;
-  progressCheck: string;
-  passPrediction: string;
   recommendation: string;
   teacherCommentENG: string;
-  teacherCommentVIE: string;
-  parentsPartnership: string;
 }
 
 interface ValidationError {
@@ -41,13 +36,8 @@ export default function UnitTestScoreForm({
 
   const initialFormData = {
     unitTestScore: "",
-    levelFit: "",
-    progressCheck: "",
-    passPrediction: "",
     recommendation: "",
     teacherCommentENG: "",
-    teacherCommentVIE: "",
-    parentsPartnership: "",
   };
 
   const [currentData, setCurrentData] =
@@ -76,13 +66,8 @@ export default function UnitTestScoreForm({
     // Additional check for empty required fields
     const requiredFields = [
       "unitTestScore",
-      "levelFit",
-      "progressCheck",
-      "passPrediction",
       "recommendation",
       "teacherCommentENG",
-      "teacherCommentVIE",
-      "parentsPartnership",
     ];
     const hasEmptyRequiredFields = requiredFields.some(
       (field) =>
@@ -108,7 +93,6 @@ export default function UnitTestScoreForm({
   }, [resetTrigger]);
 
   return (
-    <div className={styles.formContainer}>
       <Form<FormData>
         schema={formSchema}
         uiSchema={formUiSchema}
@@ -122,6 +106,5 @@ export default function UnitTestScoreForm({
         noValidate={true}
         widgets={{ NumberWidget: CustomNumberWidget, TextAreaWidget: CustomTextArea }}
       />
-    </div>
   );
 }

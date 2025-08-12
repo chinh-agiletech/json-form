@@ -4,33 +4,13 @@ export const formSchema: JSONSchema7 = {
   type: "object",
   required: [
     "unitTestScore",
-    "levelFit",
-    "progressCheck",
-    "passPrediction",
     "recommendation",
     "teacherCommentENG",
-    "teacherCommentVIE",
-    "parentsPartnership",
   ],
   properties: {
     unitTestScore: {
       type: "string",
       title: "Unit test score",
-      maxLength: 250,
-    },
-    levelFit: {
-      type: "string",
-      title: "Level fit",
-      maxLength: 250,
-    },
-    progressCheck: {
-      type: "string",
-      title: "Progress check",
-      maxLength: 250,
-    },
-    passPrediction: {
-      type: "string",
-      title: "Pass prediction",
       maxLength: 250,
     },
     recommendation: {
@@ -41,16 +21,6 @@ export const formSchema: JSONSchema7 = {
     teacherCommentENG: {
       type: "string",
       title: "Teacher comment (ENG)",
-      maxLength: 250,
-    },
-    teacherCommentVIE: {
-      type: "string",
-      title: "Teacher comment (VIE)",
-      maxLength: 250,
-    },
-    parentsPartnership: {
-      type: "string",
-      title: "Parents partnership",
       maxLength: 250,
     },
   },

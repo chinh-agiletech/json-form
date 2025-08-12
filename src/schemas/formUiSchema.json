@@ -4,50 +4,21 @@
   },
   "ui:order": [
     "unitTestScore",
-    "levelFit",
-    "progressCheck",
-    "passPrediction",
     "recommendation",
-    "teacherCommentENG",
-    "teacherCommentVIE",
-    "parentsPartnership"
+    "teacherCommentENG"
   ],
   "unitTestScore": {
     "ui:widget": "NumberWidget",
     "ui:options": {
-      "classNames": "formSingleCol"
+      "classNames": "form-single-col"
     },
     "ui:placeholder": "Enter number"
-  },
-  "levelFit": {
-    "ui:widget": "TextAreaWidget",
-    "ui:options": {
-      "rows": 4,
-      "classNames": "form-textarea-left"
-    },
-    "ui:placeholder": "Enter text"
-  },
-  "progressCheck": {
-    "ui:widget": "TextAreaWidget",
-    "ui:options": {
-      "rows": 4,
-      "classNames": "form-textarea-right"
-    },
-    "ui:placeholder": "Enter text"
-  },
-  "passPrediction": {
-    "ui:widget": "TextAreaWidget",
-    "ui:options": {
-      "rows": 4,
-      "classNames": "form-textarea-left"
-    },
-    "ui:placeholder": "Enter text"
   },
   "recommendation": {
     "ui:widget": "TextAreaWidget",
     "ui:options": {
       "rows": 4,
-      "classNames": "form-textarea-right"
+      "classNames": "form-textarea-left"
     },
     "ui:placeholder": "Enter text"
   },
@@ -55,23 +26,7 @@
     "ui:widget": "TextAreaWidget",
     "ui:options": {
       "rows": 4,
-      "classNames": "form-textarea-left"
-    },
-    "ui:placeholder": "Enter text"
-  },
-  "teacherCommentVIE": {
-    "ui:widget": "TextAreaWidget",
-    "ui:options": {
-      "rows": 4,
       "classNames": "form-textarea-right"
-    },
-    "ui:placeholder": "Enter text"
-  },
-  "parentsPartnership": {
-    "ui:widget": "TextAreaWidget",
-    "ui:options": {
-      "rows": 4,
-      "classNames": "form-textarea-left"
     },
     "ui:placeholder": "Enter text"
   }

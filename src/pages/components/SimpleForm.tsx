@@ -13,13 +13,8 @@ interface FormData {
 
 interface MyFormData {
   unitTestScore: string;
-  levelFit: string;
-  progressCheck: string;
-  passPrediction: string;
   recommendation: string;
   teacherCommentENG: string;
-  teacherCommentVIE: string;
-  parentsPartnership: string;
 }
 
 interface CombinedFormData extends FormData, MyFormData {}
@@ -50,13 +45,8 @@ export default function SimpleForm({ onClose }: SimpleFormProps) {
 
   const [myFormData, setMyFormData] = useState<MyFormData>({
     unitTestScore: "",
-    levelFit: "",
-    progressCheck: "",
-    passPrediction: "",
     recommendation: "",
     teacherCommentENG: "",
-    teacherCommentVIE: "",
-    parentsPartnership: "",
   });
 
   const handleInputChange = (field: keyof FormData, value: string) => {
@@ -88,13 +78,8 @@ export default function SimpleForm({ onClose }: SimpleFormProps) {
       // Reset MyForm data
       setMyFormData({
         unitTestScore: "",
-        levelFit: "",
-        progressCheck: "",
-        passPrediction: "",
         recommendation: "",
         teacherCommentENG: "",
-        teacherCommentVIE: "",
-        parentsPartnership: "",
       });
 
       // Trigger reset in MyForm component
