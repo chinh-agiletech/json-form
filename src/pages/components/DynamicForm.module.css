@@ -1,0 +1,132 @@
+.formContainer {
+  max-width: 1000px;
+  margin: auto;
+}
+
+/* Global styles for RJSF components within our form container */
+.formContainer :global(.rjsf > fieldset) {
+  border: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.formContainer :global(.field-object) {
+  display: flex !important;
+  flex-wrap: wrap !important;
+  gap: 0 !important;
+}
+
+.formContainer :global(.form-group) {
+  margin-bottom: 16px !important;
+}
+
+.formContainer :global(.form-group.form-row-4-col),
+.formContainer :global(.form-group.form-row-3-col),
+.formContainer :global(.form-group.form-textarea-left),
+.formContainer :global(.form-group.form-textarea-right),
+.formContainer :global(.form-group.form-single-col) {
+  margin-bottom: 16px !important;
+}
+
+/* Row layouts */
+.formContainer :global(.form-row-4-col) {
+  width: 23% !important;
+  display: inline-block !important;
+  margin-right: 2.66% !important;
+  vertical-align: top !important;
+}
+
+.formContainer :global(.form-row-4-col:nth-child(4n)) {
+  margin-right: 0 !important;
+}
+
+.formContainer :global(.form-row-3-col) {
+  width: 31.33% !important;
+  display: inline-block !important;
+  margin-right: 3% !important;
+  vertical-align: top !important;
+}
+
+.formContainer :global(.form-row-3-col:nth-child(3n)) {
+  margin-right: 0 !important;
+}
+
+.formContainer :global(.form-row-2-col) {
+  width: 48% !important;
+  display: inline-block !important;
+  margin-right: 4% !important;
+  vertical-align: top !important;
+}
+
+.formContainer :global(.form-row-2-col:nth-child(2n)) {
+  margin-right: 0 !important;
+}
+
+.formContainer :global(.form-single-col) {
+  width: 100% !important;
+  margin-bottom: 20px !important;
+}
+
+.formContainer :global(.form-textarea-left) {
+  width: 48% !important;
+  display: inline-block !important;
+  margin-right: 4% !important;
+  vertical-align: top !important;
+}
+
+.formContainer :global(.form-textarea-right) {
+  width: 48% !important;
+  display: inline-block !important;
+  vertical-align: top !important;
+}
+
+.formContainer :global(.form-textarea-full) {
+  width: 100% !important;
+}
+
+/* Input styling */
+.formContainer :global(input),
+.formContainer :global(textarea),
+.formContainer :global(select) {
+  width: 100% !important;
+  padding: 8px 12px !important;
+  border: 1px solid #d1d5db !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  font-family: inherit !important;
+  outline: none !important;
+  box-sizing: border-box !important;
+}
+
+.formContainer :global(input:focus),
+.formContainer :global(textarea:focus),
+.formContainer :global(select:focus) {
+  border-color: #3b82f6 !important;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+}
+
+/* Label styling */
+.formContainer :global(label) {
+  display: block !important;
+  margin-bottom: 6px !important;
+  font-weight: 500 !important;
+  color: #374151 !important;
+  font-size: 14px !important;
+}
+
+/* Required field indicator */
+.formContainer :global(.field-object .required) {
+  color: red !important;
+}
+
+/* Error styling */
+.formContainer :global(.field-error) {
+  color: #ef4444 !important;
+  font-size: 12px !important;
+  margin-top: 4px !important;
+}
+
+/* Hide default submit button */
+.formContainer :global(.btn-submit) {
+  display: none !important;
+}

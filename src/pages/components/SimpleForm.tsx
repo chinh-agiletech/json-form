@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import MyForm from "./MyForm/MyForm";
+import DynamicForm from "./DynamicForm";
+import { JSONSchema7 } from 'json-schema';
 
 interface FormData {
   attendance: string;
@@ -26,9 +28,10 @@ interface ValidationError {
 
 interface SimpleFormProps {
   onClose?: () => void;
+  dynamicSchema?: JSONSchema7 | null;
 }
 
-export default function SimpleForm({ onClose }: SimpleFormProps) {
+export default function SimpleForm({ onClose, dynamicSchema }: SimpleFormProps) {
   const initialFormData: FormData = {
     attendance: "99.9%",
     age: "6",
@@ -49,6 +52,9 @@ export default function SimpleForm({ onClose }: SimpleFormProps) {
     teacherCommentENG: "",
   });
 
+  // State for dynamic form data
+  const [dynamicFormData, setDynamicFormData] = useState<any>({});
+
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
@@ -57,32 +63,47 @@ export default function SimpleForm({ onClose }: SimpleFormProps) {
     setMyFormData(data);
   };
 
+  const handleDynamicFormChange = (data: any) => {
+    setDynamicFormData(data);
+  };
+
   const handleValidation = (isValid: boolean, errors: ValidationError[]) => {
     setIsFormValid(isValid);
   };
 
   const handleSubmit = () => {
-    const combinedData: CombinedFormData = {
-      ...formData,
-      ...myFormData,
-    };
-
-    const data = {
-      ...combinedData,
-      unitTestScore: Number(myFormData.unitTestScore),
+    let combinedData;
+    
+    if (dynamicSchema) {
+      // If using dynamic schema, combine with dynamic form data
+      combinedData = {
+        ...formData,
+        ...dynamicFormData,
+      };
+    } else {
+      // If using default MyForm, combine with myFormData
+      combinedData = {
+        ...formData,
+        ...myFormData,
+        unitTestScore: Number(myFormData.unitTestScore),
+      };
     }
 
-    console.log("Combined Form Data:", data);
+    console.log("Combined Form Data:", combinedData);
 
     if (combinedData) {
-      // Reset MyForm data
-      setMyFormData({
-        unitTestScore: "",
-        recommendation: "",
-        teacherCommentENG: "",
-      });
+      // Reset form data
+      if (dynamicSchema) {
+        setDynamicFormData({});
+      } else {
+        setMyFormData({
+          unitTestScore: "",
+          recommendation: "",
+          teacherCommentENG: "",
+        });
+      }
 
-      // Trigger reset in MyForm component
+      // Trigger reset in form component
       setResetCounter((prev) => prev + 1);
       setIsFormValid(false);
 
@@ -277,11 +298,38 @@ export default function SimpleForm({ onClose }: SimpleFormProps) {
           </div>
         </div>
 
-        <MyForm
-          onFormChange={handleMyFormChange}
-          onValidation={handleValidation}
-          resetTrigger={resetCounter}
-        />
+        {/* Conditional Form Rendering */}
+        {dynamicSchema ? (
+          <div style={{ 
+            marginTop: "20px",
+            border: "1px solid #d1d5db", 
+            borderRadius: "10px", 
+            padding: "20px",
+            backgroundColor: "white"
+          }}>
+            <h3 style={{
+              marginTop: "0",
+              marginBottom: "16px",
+              color: "#374151",
+              fontSize: "18px",
+              fontWeight: "600"
+            }}>
+              Dynamic Form (Generated from Schema)
+            </h3>
+            <DynamicForm
+              schema={dynamicSchema}
+              onFormChange={handleDynamicFormChange}
+              onValidation={handleValidation}
+              resetTrigger={resetCounter}
+            />
+          </div>
+        ) : (
+          <MyForm
+            onFormChange={handleMyFormChange}
+            onValidation={handleValidation}
+            resetTrigger={resetCounter}
+          />
+        )}
 
         {/* Submit button */}
         <div

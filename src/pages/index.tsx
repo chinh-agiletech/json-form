@@ -1,53 +1,83 @@
 import React, { useState } from "react";
 import SimpleForm from "./components/SimpleForm";
 import Modal from "./components/Modal";
+import SchemaInput from "./components/SchemaInput";
+import { JSONSchema7 } from 'json-schema';
 
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [dynamicSchema, setDynamicSchema] = useState<JSONSchema7 | null>(null);
 
   const openModal = () => setIsModalOpen(true);
-  const closeModal = () => setIsModalOpen(false);
+  const closeModal = () => {
+    setIsModalOpen(false);
+    // Reset dynamic schema when modal is closed
+    setDynamicSchema(null);
+  };
+
+  const handleSchemaGenerated = (schema: JSONSchema7) => {
+    setDynamicSchema(schema);
+    openModal();
+  };
 
   return (
     <div
       style={{
         minHeight: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
         backgroundColor: "#f9fafb",
+        padding: "20px",
       }}
     >
-      <button
-        onClick={openModal}
-        style={{
-          padding: "16px 32px",
-          backgroundColor: "#3b82f6",
-          color: "white",
-          border: "none",
-          borderRadius: "8px",
+      {/* Header */}
+      <div style={{
+        textAlign: "center",
+        marginBottom: "40px",
+        paddingTop: "40px"
+      }}>
+        <h1 style={{
+          fontSize: "36px",
+          fontWeight: "700",
+          color: "#1f2937",
+          marginBottom: "16px"
+        }}>
+          JSON Schema Form Generator
+        </h1>
+        <p style={{
           fontSize: "18px",
-          fontWeight: "600",
-          cursor: "pointer",
-          boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-          transition: "all 0.2s ease",
-        }}
-        onMouseEnter={(e) => {
-          e.currentTarget.style.backgroundColor = "#2563eb";
-          e.currentTarget.style.transform = "translateY(-2px)";
-          e.currentTarget.style.boxShadow = "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)";
-        }}
-        onMouseLeave={(e) => {
-          e.currentTarget.style.backgroundColor = "#3b82f6";
-          e.currentTarget.style.transform = "translateY(0)";
-          e.currentTarget.style.boxShadow = "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)";
-        }}
-      >
-        Open Form
-      </button>
+          color: "#6b7280",
+          maxWidth: "600px",
+          margin: "0 auto"
+        }}>
+          Create dynamic forms from JSON Schema or use our predefined student form
+        </p>
+      </div>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title="Student Form">
-        <SimpleForm onClose={closeModal} />
+      {/* Main Content */}
+      <div style={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        gap: "40px",
+        flexWrap: "wrap",
+        maxWidth: "1400px",
+        margin: "0 auto"
+      }}>
+        {/* Schema Input Section */}
+        <div style={{
+          flex: "1",
+          minWidth: "400px",
+          maxWidth: "600px"
+        }}>
+          <SchemaInput onSchemaGenerated={handleSchemaGenerated} />
+        </div>
+      </div>
+
+      <Modal 
+        isOpen={isModalOpen} 
+        onClose={closeModal} 
+        title={dynamicSchema ? "Dynamic Form (Generated from Schema)" : "Student Assessment Form"}
+      >
+        <SimpleForm onClose={closeModal} dynamicSchema={dynamicSchema} />
       </Modal>
     </div>
   );
