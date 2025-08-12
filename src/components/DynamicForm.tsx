@@ -121,9 +121,6 @@ export default function DynamicForm({
         return 'TextWidget';
       case 'number':
       case 'integer':
-        if (property.minimum !== undefined && property.maximum !== undefined) {
-          return 'RangeWidget';
-        }
         return 'NumberWidget';
       default:
         return 'TextWidget';
@@ -273,8 +270,7 @@ export default function DynamicForm({
         showErrorList={false}
         noValidate={true}
         widgets={{ 
-          // Core widgets
-          NumberWidget: CustomNumberWidget, 
+          NumberWidget: CustomNumberWidget,
           TextAreaWidget: CustomTextArea,
           TextWidget: CustomTextWidget,
           
