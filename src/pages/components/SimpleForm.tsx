@@ -76,7 +76,13 @@ export default function SimpleForm({ onClose }: SimpleFormProps) {
       ...formData,
       ...myFormData,
     };
-    console.log("Combined Form Data:", combinedData);
+
+    const data = {
+      ...combinedData,
+      unitTestScore: Number(myFormData.unitTestScore),
+    }
+
+    console.log("Combined Form Data:", data);
 
     if (combinedData) {
       // Reset MyForm data

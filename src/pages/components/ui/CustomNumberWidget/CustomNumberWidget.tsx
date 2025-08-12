@@ -11,6 +11,7 @@ const CustomNumberWidget = (props: WidgetProps) => {
     onChange,
     onBlur,
     onFocus,
+    placeholder,
     options,
     schema,
     rawErrors = [],
@@ -36,17 +37,19 @@ const CustomNumberWidget = (props: WidgetProps) => {
         required={required}
         disabled={disabled}
         readOnly={readonly}
+        placeholder={placeholder}
         onChange={(event) => {
           const newValue = event.target.value;
           // Chỉ cho phép số, dấu chấm và dấu trừ
           const cleanValue = newValue.replace(/[^0-9.-]/g, '');
           
           if (cleanValue === "" || cleanValue === "-") {
-            onChange(undefined);
+            onChange("");
           } else {
+            // Kiểm tra xem có phải số hợp lệ không
             const numValue = Number(cleanValue);
             if (!isNaN(numValue)) {
-              onChange(numValue);
+              onChange(cleanValue); // Trả về string thay vì number
             }
           }
         }}
@@ -72,16 +75,15 @@ const CustomNumberWidget = (props: WidgetProps) => {
           const cleanValue = pastedText.replace(/[^0-9.-]/g, '');
           
           if (cleanValue && !isNaN(Number(cleanValue))) {
-            const numValue = Number(cleanValue);
-            onChange(numValue);
+            onChange(cleanValue); // Trả về string thay vì number
           }
         }}
         style={{
-          color: "black",
-          fontWeight: "bold",
+          color: "#6b7280",
           width: "100%",
           padding: "5px",
           borderRadius: "4px",
+          fontSize: '14px',
           border: "1px solid #ccc",
         }}
       />

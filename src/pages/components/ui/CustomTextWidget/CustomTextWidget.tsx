@@ -20,11 +20,11 @@ const CustomTextWidget = (props: WidgetProps) => {
       <input
         type="text"
         id={id}
-        value={value ?? ""}
+        value={value}
         required={required}
         disabled={disabled}
         readOnly={readonly}
-        placeholder={placeholder || "Enter text"}
+        placeholder={placeholder}
         onChange={(event) => {
           onChange(event.target.value === "" ? undefined : event.target.value);
         }}

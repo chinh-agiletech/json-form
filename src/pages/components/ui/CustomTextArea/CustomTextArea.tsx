@@ -33,7 +33,7 @@ const CustomTextArea = (props: WidgetProps) => {
         rows={rows}
         placeholder={placeholder || "Enter text"}
         onChange={(event) => {
-          onChange(event.target.value === "" ? undefined : event.target.value);
+          onChange(event.target.value);
         }}
         onBlur={onBlur && ((event) => onBlur(id, event.target.value))}
         onFocus={onFocus && ((event) => onFocus(id, event.target.value))}

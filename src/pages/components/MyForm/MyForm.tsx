@@ -2,8 +2,11 @@ import React from "react";
 import Form, { IChangeEvent } from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
 import { formSchema } from "../../../schemas/formSchema";
-import { createFormUiSchema } from "../../../schemas/formUiSchema";
+import formUiSchema from "../../../schemas/formUiSchema.json";
 import styles from "./MyForm.module.css";
+import CustomTextWidget from '../ui/CustomTextWidget/CustomTextWidget';
+import CustomTextArea from '../ui/CustomTextArea/CustomTextArea';
+import CustomNumberWidget from '../ui/CustomNumberWidget/CustomNumberWidget';
 
 interface FormData {
   unitTestScore: string;
@@ -34,7 +37,7 @@ export default function UnitTestScoreForm({
   onValidation,
   resetTrigger,
 }: MyFormProps) {
-  const formUiSchema = createFormUiSchema(styles);
+  // const formUiSchema = createFormUiSchema(styles);
 
   const initialFormData = {
     unitTestScore: "",
@@ -117,6 +120,7 @@ export default function UnitTestScoreForm({
         liveValidate={false}
         showErrorList={false}
         noValidate={true}
+        widgets={{ NumberWidget: CustomNumberWidget, TextAreaWidget: CustomTextArea }}
       />
     </div>
   );
