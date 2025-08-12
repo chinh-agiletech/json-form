@@ -130,3 +130,29 @@
 .formContainer :global(.btn-submit) {
   display: none !important;
 }
+
+/* Custom field styles */
+.formContainer :global(.custom-number-field) {
+  width: 48% !important;
+  display: inline-block !important;
+  margin-right: 4% !important;
+  vertical-align: top !important;
+}
+
+.formContainer :global(.custom-checkbox) {
+  width: 100% !important;
+  margin-bottom: 20px !important;
+}
+
+.formContainer :global(.custom-name-field),
+.formContainer :global(.custom-email-field) {
+  width: 48% !important;
+  display: inline-block !important;
+  margin-right: 4% !important;
+  vertical-align: top !important;
+}
+
+.formContainer :global(.custom-text-field) {
+  width: 100% !important;
+  margin-bottom: 20px !important;
+}

@@ -3,138 +3,172 @@ import { JSONSchema7 } from 'json-schema';
 
 interface SchemaInputProps {
   onSchemaGenerated?: (schema: JSONSchema7) => void;
+  onUiSchemaGenerated?: (uiSchema: any) => void;
 }
 
-export default function SchemaInput({ onSchemaGenerated }: SchemaInputProps) {
-  const [schemaText, setSchemaText] = useState("");
-  // const [parsedSchema, setParsedSchema] = useState<JSONSchema7 | null>(null); // Commented out as it's unused
+export default function SchemaInput({ onSchemaGenerated, onUiSchemaGenerated }: SchemaInputProps) {
+  const [uiSchemaText, setUiSchemaText] = useState("");
   const [error, setError] = useState("");
 
-  const defaultSchema = {
+  const defaultUiSchema = {
+    "ui:submitButtonOptions": {
+      "norender": true
+    },
+    "ui:order": [
+      "unitTestScore",
+      "recommendation",
+      "teacherCommentENG"
+    ],
+    "unitTestScore": {
+      "ui:widget": "NumberWidget",
+      "ui:options": {
+        "classNames": "form-single-col"
+      },
+      "ui:placeholder": "Enter number"
+    },
+    "recommendation": {
+      "ui:widget": "TextAreaWidget",
+      "ui:options": {
+        "rows": 4,
+        "classNames": "form-textarea-left"
+      },
+      "ui:placeholder": "Enter text"
+    },
+    "teacherCommentENG": {
+      "ui:widget": "TextAreaWidget",
+      "ui:options": {
+        "rows": 4,
+        "classNames": "form-textarea-right"
+      },
+      "ui:placeholder": "Enter text"
+    }
+  };
+
+  const defaultJsonSchema: JSONSchema7 = {
     type: "object",
-    required: ["name", "email", "isActive"],
+    required: ["unitTestScore", "recommendation", "teacherCommentENG"],
     properties: {
-      name: {
-        type: "string",
-        title: "Full Name",
-        description: "Enter your full name"
-      },
-      email: {
-        type: "string",
-        title: "Email Address", 
-        format: "email",
-        description: "We'll never share your email"
-      },
-      password: {
-        type: "string",
-        title: "Password",
-        format: "password",
-        minLength: 6
-      },
-      age: {
-        type: "integer",
-        title: "Age",
-        minimum: 18,
-        maximum: 100,
-        description: "Must be 18 or older"
-      },
-      rating: {
+      unitTestScore: {
         type: "number",
-        title: "Rating",
-        minimum: 1,
-        maximum: 10,
-        description: "Rate from 1 to 10"
+        title: "Unit Test Score",
+        minimum: 0,
+        maximum: 100
       },
-      birthdate: {
+      recommendation: {
         type: "string",
-        title: "Birth Date",
-        format: "date"
+        title: "Recommendation"
       },
-      country: {
+      teacherCommentENG: {
         type: "string",
-        title: "Country",
-        enum: ["US", "UK", "Canada", "Australia", "Germany", "France"],
-        description: "Select your country"
-      },
-      gender: {
-        type: "string", 
-        title: "Gender",
-        enum: ["Male", "Female", "Other"],
-        description: "Select your gender"
-      },
-      isActive: {
-        type: "boolean",
-        title: "Active User",
-        description: "Check if you want to receive notifications"
-      },
-      bio: {
-        type: "string",
-        title: "Biography",
-        maxLength: 500,
-        description: "Tell us about yourself"
-      },
-      skills: {
-        type: "array",
-        title: "Skills",
-        items: {
-          type: "string",
-          enum: ["JavaScript", "Python", "Java", "C++", "React", "Vue", "Angular"]
-        },
-        uniqueItems: true,
-        description: "Select your skills"
-      },
-      hobbies: {
-        type: "array", 
-        title: "Hobbies",
-        items: {
-          type: "string",
-          enum: ["Reading", "Gaming", "Sports", "Music", "Cooking", "Travel"]
-        },
-        uniqueItems: true,
-        description: "Select your hobbies"
-      },
-      favoriteColor: {
-        type: "string",
-        title: "Favorite Color",
-        enum: ["Red", "Blue", "Green", "Yellow", "Purple", "Orange"],
-        description: "Pick your favorite color"
+        title: "Teacher Comment (English)"
       }
     }
   };
 
+  // Function to generate JSON schema from UI schema
+  const generateJsonSchemaFromUiSchema = (uiSchema: any): JSONSchema7 => {
+    const properties: Record<string, any> = {};
+    const required: string[] = [];
+    
+    // Get field order from ui:order or extract from uiSchema keys
+    const fieldOrder = uiSchema["ui:order"] || Object.keys(uiSchema).filter(key => !key.startsWith("ui:"));
+    
+    fieldOrder.forEach((fieldName: string) => {
+      const fieldConfig = uiSchema[fieldName];
+      if (fieldConfig && typeof fieldConfig === 'object') {
+        const widget = fieldConfig["ui:widget"];
+        
+        // Determine field type based on widget
+        let fieldType = "string";
+        let format: string | undefined;
+        
+        switch (widget) {
+          case "NumberWidget":
+            fieldType = "number";
+            break;
+          case "TextAreaWidget":
+            fieldType = "string";
+            break;
+          case "EmailWidget":
+            fieldType = "string";
+            format = "email";
+            break;
+          case "CheckboxWidget":
+            fieldType = "boolean";
+            break;
+          case "DateWidget":
+            fieldType = "string";
+            format = "date";
+            break;
+          case "PasswordWidget":
+            fieldType = "string";
+            format = "password";
+            break;
+          default:
+            fieldType = "string";
+        }
+        
+        const property: any = {
+          type: fieldType,
+          title: fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/([A-Z])/g, ' $1')
+        };
+        
+        if (format) {
+          property.format = format;
+        }
+        
+        // Add some default constraints
+        if (fieldType === "number") {
+          property.minimum = 0;
+          property.maximum = 100;
+        }
+        
+        properties[fieldName] = property;
+        required.push(fieldName);
+      }
+    });
+    
+    return {
+      type: "object",
+      required,
+      properties
+    };
+  };
+
   const handleSchemaSubmit = () => {
     try {
-      let schema;
+      let uiSchema;
+      let jsonSchema;
       
-      if (schemaText.trim() === "") {
-        // Use default schema if input is empty
-        schema = defaultSchema;
+      if (uiSchemaText.trim() === "") {
+        // Use default UI schema if input is empty
+        uiSchema = defaultUiSchema;
+        jsonSchema = defaultJsonSchema;
       } else {
-        // Parse the input schema
-        schema = JSON.parse(schemaText);
+        // Parse the input UI schema
+        uiSchema = JSON.parse(uiSchemaText);
+        // Generate JSON schema from UI schema
+        jsonSchema = generateJsonSchemaFromUiSchema(uiSchema);
       }
-      
-      // Basic validation
-      if (!schema.type || !schema.properties) {
-        throw new Error("Invalid schema: must have 'type' and 'properties'");
-      }
-      
-      // setParsedSchema(schema); // Commented out as parsedSchema is unused
+
       setError("");
-      
-      // Send schema to parent component
+
+      // Send both schemas to parent component
       if (onSchemaGenerated) {
-        onSchemaGenerated(schema);
+        onSchemaGenerated(jsonSchema);
+      }
+      
+      if (onUiSchemaGenerated) {
+        onUiSchemaGenerated(uiSchema);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid JSON schema");
-      // setParsedSchema(null); // Commented out as parsedSchema is unused
+      setError(err instanceof Error ? err.message : "Invalid UI schema JSON");
     }
   };
 
   const inputStyle = {
     width: "100%",
-    minHeight: "200px",
+    minHeight: "300px",
     padding: "12px",
     border: "1px solid #d1d5db",
     borderRadius: "8px",
@@ -171,7 +205,7 @@ export default function SchemaInput({ onSchemaGenerated }: SchemaInputProps) {
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
       <div style={{ marginBottom: "20px" }}>
         <h2 style={{ marginBottom: "16px", color: "#1f2937", fontSize: "24px", fontWeight: "600" }}>
-          JSON Schema Input
+          UI Schema Input
         </h2>
         
         <div style={{ marginBottom: "16px" }}>
@@ -181,24 +215,40 @@ export default function SchemaInput({ onSchemaGenerated }: SchemaInputProps) {
             fontWeight: "500", 
             color: "#374151" 
           }}>
-            Enter JSON Schema (leave empty to use default schema):
+            Enter UI Schema JSON (leave empty to use default UI schema):
           </label>
           
           <textarea
-            value={schemaText}
-            onChange={(e) => setSchemaText(e.target.value)}
-            placeholder={`Try this simple test schema:
+            value={uiSchemaText}
+            onChange={(e) => setUiSchemaText(e.target.value)}
+            placeholder={`Try this UI schema example:
 {
-  "type": "object",
-  "properties": {
-    "name": {"type": "string", "title": "Name"},
-    "isActive": {"type": "boolean", "title": "Active"},
-    "skills": {
-      "type": "array",
-      "title": "Skills",
-      "items": {"type": "string", "enum": ["JS", "Python", "Java"]}
+  "ui:submitButtonOptions": {
+    "norender": true
+  },
+  "ui:order": ["unitTestScore", "recommendation", "teacherCommentENG"],
+  "unitTestScore": {
+    "ui:widget": "NumberWidget",
+    "ui:options": {
+      "classNames": "form-single-col"
     },
-    "color": {"type": "string", "title": "Color", "enum": ["Red", "Blue", "Green"]}
+    "ui:placeholder": "Enter number"
+  },
+  "recommendation": {
+    "ui:widget": "TextAreaWidget",
+    "ui:options": {
+      "rows": 4,
+      "classNames": "form-textarea-left"
+    },
+    "ui:placeholder": "Enter text"
+  },
+  "teacherCommentENG": {
+    "ui:widget": "TextAreaWidget",
+    "ui:options": {
+      "rows": 4,
+      "classNames": "form-textarea-right"
+    },
+    "ui:placeholder": "Enter text"
   }
 }`}
             style={inputStyle}

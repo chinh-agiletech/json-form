@@ -22,9 +22,10 @@ interface MyFormData {
 interface SimpleFormProps {
   onClose?: () => void;
   dynamicSchema?: JSONSchema7 | null;
+  dynamicUiSchema?: any;
 }
 
-export default function SimpleForm({ onClose, dynamicSchema }: SimpleFormProps) {
+export default function SimpleForm({ onClose, dynamicSchema, dynamicUiSchema }: SimpleFormProps) {
   const initialFormData: FormData = {
     attendance: "99.9%",
     age: "6",
@@ -311,6 +312,7 @@ export default function SimpleForm({ onClose, dynamicSchema }: SimpleFormProps) 
             </h3>
             <DynamicForm
               schema={dynamicSchema}
+              uiSchema={dynamicUiSchema}
               onFormChange={handleDynamicFormChange}
               onValidation={handleValidation}
               resetTrigger={resetCounter}

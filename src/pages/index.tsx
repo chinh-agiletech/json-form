@@ -7,16 +7,22 @@ import { JSONSchema7 } from 'json-schema';
 export default function Home() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [dynamicSchema, setDynamicSchema] = useState<JSONSchema7 | null>(null);
+  const [dynamicUiSchema, setDynamicUiSchema] = useState<any>(null);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => {
     setIsModalOpen(false);
-    // Reset dynamic schema when modal is closed
+    // Reset dynamic schemas when modal is closed
     setDynamicSchema(null);
+    setDynamicUiSchema(null);
   };
 
   const handleSchemaGenerated = (schema: JSONSchema7) => {
     setDynamicSchema(schema);
+  };
+
+  const handleUiSchemaGenerated = (uiSchema: any) => {
+    setDynamicUiSchema(uiSchema);
     openModal();
   };
 
@@ -40,7 +46,7 @@ export default function Home() {
           color: "#1f2937",
           marginBottom: "16px"
         }}>
-          JSON Schema Form Generator
+          UI Schema Form Generator
         </h1>
         <p style={{
           fontSize: "18px",
@@ -48,7 +54,7 @@ export default function Home() {
           maxWidth: "600px",
           margin: "0 auto"
         }}>
-          Create dynamic forms from JSON Schema or use our predefined student form
+          Create dynamic forms with custom UI styling using UI Schema JSON
         </p>
       </div>
 
@@ -68,16 +74,23 @@ export default function Home() {
           minWidth: "400px",
           maxWidth: "600px"
         }}>
-          <SchemaInput onSchemaGenerated={handleSchemaGenerated} />
+          <SchemaInput 
+            onSchemaGenerated={handleSchemaGenerated}
+            onUiSchemaGenerated={handleUiSchemaGenerated}
+          />
         </div>
       </div>
 
       <Modal 
         isOpen={isModalOpen} 
         onClose={closeModal} 
-        title={dynamicSchema ? "Dynamic Form (Generated from Schema)" : "Student Assessment Form"}
+        title={dynamicSchema ? "Dynamic Form (Generated from UI Schema)" : "Student Assessment Form"}
       >
-        <SimpleForm onClose={closeModal} dynamicSchema={dynamicSchema} />
+        <SimpleForm 
+          onClose={closeModal} 
+          dynamicSchema={dynamicSchema}
+          dynamicUiSchema={dynamicUiSchema}
+        />
       </Modal>
     </div>
   );

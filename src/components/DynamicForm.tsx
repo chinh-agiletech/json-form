@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from "react";
 import Form, { IChangeEvent } from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
 import { JSONSchema7 } from 'json-schema';
+import styles from './DynamicForm.module.css';
 import CustomTextWidget from './ui/CustomTextWidget/CustomTextWidget';
 import CustomTextArea from './ui/CustomTextArea/CustomTextArea';
 import CustomNumberWidget from './ui/CustomNumberWidget/CustomNumberWidget';
@@ -51,6 +52,7 @@ import RangeWidget from './ui/RangeWidget/RangeWidget';
 
 interface DynamicFormProps {
   schema: JSONSchema7;
+  uiSchema?: any;
   onClose?: () => void;
   onFormChange?: (data: Record<string, unknown>) => void;
   onValidation?: (isValid: boolean, errors: ValidationError[]) => void;
@@ -66,6 +68,7 @@ interface ValidationError {
 
 export default function DynamicForm({ 
   schema, 
+  uiSchema,
   onClose, 
   onFormChange, 
   onValidation, 
@@ -129,7 +132,7 @@ export default function DynamicForm({
 
   // Create default UI schema for better styling
   const createUiSchema = (schema: JSONSchema7) => {
-    const uiSchema: Record<string, Record<string, unknown> | string[] | unknown> = {
+    const generatedUiSchema: Record<string, Record<string, unknown> | string[] | unknown> = {
       "ui:submitButtonOptions": {
         "norender": true
       }
@@ -140,7 +143,7 @@ export default function DynamicForm({
       const propertyCount = propertyKeys.length;
       
       // Set order for consistent layout
-      uiSchema["ui:order"] = propertyKeys;
+      generatedUiSchema["ui:order"] = propertyKeys;
       
       propertyKeys.forEach((key, index) => {
         const property = schema.properties![key] as JSONSchema7;
@@ -172,7 +175,7 @@ export default function DynamicForm({
           }
         }
         
-        uiSchema[key] = {
+        generatedUiSchema[key] = {
           "ui:widget": widgetType,
           "ui:options": {
             classNames: layoutClass,
@@ -182,22 +185,23 @@ export default function DynamicForm({
         
         // Add specific options for certain widgets
         if (property.format === 'email') {
-          (uiSchema[key] as Record<string, unknown>)["ui:options"] = {
-            ...(uiSchema[key] as Record<string, unknown>)["ui:options"] as Record<string, unknown>,
+          (generatedUiSchema[key] as Record<string, unknown>)["ui:options"] = {
+            ...(generatedUiSchema[key] as Record<string, unknown>)["ui:options"] as Record<string, unknown>,
             inputType: "email"
           };
         }
         
         if (property.description) {
-          (uiSchema[key] as Record<string, unknown>)["ui:description"] = property.description;
+          (generatedUiSchema[key] as Record<string, unknown>)["ui:description"] = property.description;
         }
       });
     }
     
-    return uiSchema;
+    return generatedUiSchema;
   };
 
-  const uiSchema = createUiSchema(schema);
+  // Use provided uiSchema if available, otherwise generate one
+  const finalUiSchema = uiSchema || createUiSchema(schema);
 
   const onSubmit = ({ formData }: IChangeEvent) => {
     console.log("Form Data Submitted:", formData);
@@ -256,11 +260,10 @@ export default function DynamicForm({
   }, [resetTrigger]);
 
   return (
-    <div>
-      {/* Dynamic Form */}
+    <>
       <Form
         schema={schema}
-        uiSchema={uiSchema}
+        uiSchema={finalUiSchema}
         validator={validator}
         onSubmit={onSubmit}
         onChange={onChange}
@@ -286,7 +289,6 @@ export default function DynamicForm({
         }}
       />
 
-      {/* Only show action buttons if this is a standalone form (has onClose) */}
       {onClose && (
         <>
           {/* Schema Info */}
@@ -301,6 +303,7 @@ export default function DynamicForm({
               Schema Info
             </h3>
             <p style={{ margin: "0", fontSize: "14px", color: "#6b7280" }}>
+              Required fields: {schema.required && schema.required.length > 0 ? schema.required.join(", ") : "None"}
               Required fields: {schema.required ? schema.required.join(", ") : "None"}
             </p>
           </div>
@@ -387,6 +390,6 @@ export default function DynamicForm({
           </div>
         </>
       )}
-    </div>
+    </>
   );
 }
