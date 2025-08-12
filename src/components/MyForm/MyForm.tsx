@@ -1,10 +1,10 @@
 import React from "react";
 import Form, { IChangeEvent } from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
-import { formSchema } from "../../../schemas/formSchema";
-import formUiSchema from "../../../schemas/formUiSchema.json";
-import styles from "./MyForm.module.css";
-import CustomTextWidget from '../ui/CustomTextWidget/CustomTextWidget';
+import { formSchema } from "../../schemas/formSchema";
+import formUiSchema from "../../schemas/formUiSchema.json";
+// import styles from "./MyForm.module.css"; // Commented out as it's unused
+// import CustomTextWidget from '../ui/CustomTextWidget/CustomTextWidget'; // Commented out as it's unused
 import CustomTextArea from '../ui/CustomTextArea/CustomTextArea';
 import CustomNumberWidget from '../ui/CustomNumberWidget/CustomNumberWidget';
 
@@ -34,11 +34,11 @@ export default function UnitTestScoreForm({
 }: MyFormProps) {
   // const formUiSchema = createFormUiSchema(styles);
 
-  const initialFormData = {
+  const initialFormData = React.useMemo(() => ({
     unitTestScore: "",
     recommendation: "",
     teacherCommentENG: "",
-  };
+  }), []);
 
   const [currentData, setCurrentData] =
     React.useState<FormData>(initialFormData);
@@ -90,7 +90,7 @@ export default function UnitTestScoreForm({
     if (resetTrigger !== undefined && resetTrigger > 0) {
       setCurrentData(initialFormData);
     }
-  }, [resetTrigger]);
+  }, [resetTrigger, initialFormData]);
 
   return (
       <Form<FormData>

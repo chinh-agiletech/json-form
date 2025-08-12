@@ -19,13 +19,6 @@ interface MyFormData {
   teacherCommentENG: string;
 }
 
-interface CombinedFormData extends FormData, MyFormData {}
-
-interface ValidationError {
-  message?: string;
-  stack?: string;
-}
-
 interface SimpleFormProps {
   onClose?: () => void;
   dynamicSchema?: JSONSchema7 | null;
@@ -53,7 +46,7 @@ export default function SimpleForm({ onClose, dynamicSchema }: SimpleFormProps) 
   });
 
   // State for dynamic form data
-  const [dynamicFormData, setDynamicFormData] = useState<any>({});
+  const [dynamicFormData, setDynamicFormData] = useState<Record<string, unknown>>({});
 
   const handleInputChange = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -63,11 +56,11 @@ export default function SimpleForm({ onClose, dynamicSchema }: SimpleFormProps) 
     setMyFormData(data);
   };
 
-  const handleDynamicFormChange = (data: any) => {
+  const handleDynamicFormChange = (data: Record<string, unknown>) => {
     setDynamicFormData(data);
   };
 
-  const handleValidation = (isValid: boolean, errors: ValidationError[]) => {
+  const handleValidation = (isValid: boolean) => {
     setIsFormValid(isValid);
   };
 

@@ -7,32 +7,97 @@ interface SchemaInputProps {
 
 export default function SchemaInput({ onSchemaGenerated }: SchemaInputProps) {
   const [schemaText, setSchemaText] = useState("");
-  const [parsedSchema, setParsedSchema] = useState<JSONSchema7 | null>(null);
+  // const [parsedSchema, setParsedSchema] = useState<JSONSchema7 | null>(null); // Commented out as it's unused
   const [error, setError] = useState("");
 
   const defaultSchema = {
     type: "object",
-    required: ["name", "email"],
+    required: ["name", "email", "isActive"],
     properties: {
       name: {
         type: "string",
-        title: "Full Name"
+        title: "Full Name",
+        description: "Enter your full name"
       },
       email: {
         type: "string",
-        title: "Email Address",
-        format: "email"
+        title: "Email Address", 
+        format: "email",
+        description: "We'll never share your email"
+      },
+      password: {
+        type: "string",
+        title: "Password",
+        format: "password",
+        minLength: 6
       },
       age: {
-        type: "number",
+        type: "integer",
         title: "Age",
-        minimum: 1,
-        maximum: 120
+        minimum: 18,
+        maximum: 100,
+        description: "Must be 18 or older"
       },
-      message: {
+      rating: {
+        type: "number",
+        title: "Rating",
+        minimum: 1,
+        maximum: 10,
+        description: "Rate from 1 to 10"
+      },
+      birthdate: {
         type: "string",
-        title: "Message",
-        maxLength: 500
+        title: "Birth Date",
+        format: "date"
+      },
+      country: {
+        type: "string",
+        title: "Country",
+        enum: ["US", "UK", "Canada", "Australia", "Germany", "France"],
+        description: "Select your country"
+      },
+      gender: {
+        type: "string", 
+        title: "Gender",
+        enum: ["Male", "Female", "Other"],
+        description: "Select your gender"
+      },
+      isActive: {
+        type: "boolean",
+        title: "Active User",
+        description: "Check if you want to receive notifications"
+      },
+      bio: {
+        type: "string",
+        title: "Biography",
+        maxLength: 500,
+        description: "Tell us about yourself"
+      },
+      skills: {
+        type: "array",
+        title: "Skills",
+        items: {
+          type: "string",
+          enum: ["JavaScript", "Python", "Java", "C++", "React", "Vue", "Angular"]
+        },
+        uniqueItems: true,
+        description: "Select your skills"
+      },
+      hobbies: {
+        type: "array", 
+        title: "Hobbies",
+        items: {
+          type: "string",
+          enum: ["Reading", "Gaming", "Sports", "Music", "Cooking", "Travel"]
+        },
+        uniqueItems: true,
+        description: "Select your hobbies"
+      },
+      favoriteColor: {
+        type: "string",
+        title: "Favorite Color",
+        enum: ["Red", "Blue", "Green", "Yellow", "Purple", "Orange"],
+        description: "Pick your favorite color"
       }
     }
   };
@@ -54,7 +119,7 @@ export default function SchemaInput({ onSchemaGenerated }: SchemaInputProps) {
         throw new Error("Invalid schema: must have 'type' and 'properties'");
       }
       
-      setParsedSchema(schema);
+      // setParsedSchema(schema); // Commented out as parsedSchema is unused
       setError("");
       
       // Send schema to parent component
@@ -63,7 +128,7 @@ export default function SchemaInput({ onSchemaGenerated }: SchemaInputProps) {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Invalid JSON schema");
-      setParsedSchema(null);
+      // setParsedSchema(null); // Commented out as parsedSchema is unused
     }
   };
 
@@ -122,7 +187,20 @@ export default function SchemaInput({ onSchemaGenerated }: SchemaInputProps) {
           <textarea
             value={schemaText}
             onChange={(e) => setSchemaText(e.target.value)}
-            placeholder={JSON.stringify(defaultSchema, null, 2)}
+            placeholder={`Try this simple test schema:
+{
+  "type": "object",
+  "properties": {
+    "name": {"type": "string", "title": "Name"},
+    "isActive": {"type": "boolean", "title": "Active"},
+    "skills": {
+      "type": "array",
+      "title": "Skills",
+      "items": {"type": "string", "enum": ["JS", "Python", "Java"]}
+    },
+    "color": {"type": "string", "title": "Color", "enum": ["Red", "Blue", "Green"]}
+  }
+}`}
             style={inputStyle}
           />
         </div>

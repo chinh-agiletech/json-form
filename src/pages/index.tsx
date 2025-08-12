@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import SimpleForm from "./components/SimpleForm";
-import Modal from "./components/Modal";
-import SchemaInput from "./components/SchemaInput";
+import SimpleForm from "../components/SimpleForm";
+import Modal from "../components/Modal";
+import SchemaInput from "../components/SchemaInput";
 import { JSONSchema7 } from 'json-schema';
 
 export default function Home() {

@@ -12,7 +12,7 @@ const CustomNumberWidget = (props: WidgetProps) => {
     onBlur,
     onFocus,
     placeholder,
-    options,
+    // options, // Commented out as it's unused
     schema,
     rawErrors = [],
   } = props;

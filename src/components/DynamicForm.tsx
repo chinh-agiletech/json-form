@@ -5,12 +5,54 @@ import { JSONSchema7 } from 'json-schema';
 import CustomTextWidget from './ui/CustomTextWidget/CustomTextWidget';
 import CustomTextArea from './ui/CustomTextArea/CustomTextArea';
 import CustomNumberWidget from './ui/CustomNumberWidget/CustomNumberWidget';
-import styles from './DynamicForm.module.css';
+import CheckboxWidget from './ui/CheckboxWidget/CheckboxWidget';
+import CheckboxesWidget from './ui/CheckboxesWidget/CheckboxesWidget';
+import SelectWidget from './ui/SelectWidget/SelectWidget';
+import RadioWidget from './ui/RadioWidget/RadioWidget';
+import EmailWidget from './ui/EmailWidget/EmailWidget';
+import DateWidget from './ui/DateWidget/DateWidget';
+import PasswordWidget from './ui/PasswordWidget/PasswordWidget';
+import RangeWidget from './ui/RangeWidget/RangeWidget';
+
+// Widget mapping based on field types and formats (currently unused but kept for future reference)
+// const widgetMap = {
+//   boolean: {
+//     checkbox: "CheckboxWidget",
+//     radio: "RadioWidget", 
+//     select: "SelectWidget",
+//   },
+//   string: {
+//     text: "TextWidget",
+//     password: "PasswordWidget",
+//     email: "EmailWidget",
+//     textarea: "TextAreaWidget",
+//     radio: "RadioWidget",
+//     select: "SelectWidget",
+//     date: "DateWidget",
+//     color: "ColorWidget",
+//   },
+//   number: {
+//     text: "TextWidget",
+//     select: "SelectWidget",
+//     range: "RangeWidget",
+//     radio: "RadioWidget",
+//   },
+//   integer: {
+//     text: "TextWidget", 
+//     select: "SelectWidget",
+//     range: "RangeWidget",
+//     radio: "RadioWidget",
+//   },
+//   array: {
+//     select: "SelectWidget",
+//     checkboxes: "CheckboxesWidget",
+//   },
+// };
 
 interface DynamicFormProps {
   schema: JSONSchema7;
   onClose?: () => void;
-  onFormChange?: (data: any) => void;
+  onFormChange?: (data: Record<string, unknown>) => void;
   onValidation?: (isValid: boolean, errors: ValidationError[]) => void;
   resetTrigger?: number;
 }
@@ -29,12 +71,68 @@ export default function DynamicForm({
   onValidation, 
   resetTrigger 
 }: DynamicFormProps) {
-  const [formData, setFormData] = useState<any>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [isFormValid, setIsFormValid] = useState(false);
+
+  // Function to determine the best widget based on field properties
+  const getWidgetForField = (property: JSONSchema7): string => {
+    const type = property.type as string;
+    
+    // Handle arrays first
+    if (type === 'array' && property.items) {
+      const items = property.items as JSONSchema7;
+      if (items.enum && items.enum.length > 0) {
+        return 'CheckboxesWidget'; // Multiple selection for arrays with enum
+      }
+      return 'SelectWidget';
+    }
+    
+    // Handle specific formats first
+    if (property.format) {
+      switch (property.format) {
+        case 'email':
+          return 'EmailWidget';
+        case 'date':
+          return 'DateWidget';
+        case 'password':
+          return 'PasswordWidget';
+        default:
+          break;
+      }
+    }
+    
+    // Handle enums (select or radio)
+    if (property.enum && property.enum.length > 0) {
+      if (property.enum.length <= 3) {
+        return type === 'boolean' ? 'CheckboxWidget' : 'RadioWidget';
+      } else {
+        return 'SelectWidget';
+      }
+    }
+    
+    // Handle based on type
+    switch (type) {
+      case 'boolean':
+        return 'CheckboxWidget';
+      case 'string':
+        if (property.maxLength && property.maxLength > 100) {
+          return 'TextAreaWidget';
+        }
+        return 'TextWidget';
+      case 'number':
+      case 'integer':
+        if (property.minimum !== undefined && property.maximum !== undefined) {
+          return 'RangeWidget';
+        }
+        return 'NumberWidget';
+      default:
+        return 'TextWidget';
+    }
+  };
 
   // Create default UI schema for better styling
   const createUiSchema = (schema: JSONSchema7) => {
-    const uiSchema: any = {
+    const uiSchema: Record<string, Record<string, unknown> | string[] | unknown> = {
       "ui:submitButtonOptions": {
         "norender": true
       }
@@ -49,89 +147,52 @@ export default function DynamicForm({
       
       propertyKeys.forEach((key, index) => {
         const property = schema.properties![key] as JSONSchema7;
+        const widgetType = getWidgetForField(property);
         
-        // Determine layout based on field type and position
-        if (property.type === 'string' && property.maxLength && property.maxLength > 100) {
-          // Large text fields - use textarea
+        // Determine layout class based on widget type and field count
+        let layoutClass = "form-single-col";
+        
+        if (widgetType === 'TextAreaWidget') {
+          // Textarea fields
           if (propertyCount <= 2) {
-            uiSchema[key] = {
-              "ui:widget": "TextAreaWidget",
-              "ui:options": {
-                rows: 4,
-                classNames: index % 2 === 0 ? "form-textarea-left" : "form-textarea-right"
-              }
-            };
+            layoutClass = index % 2 === 0 ? "form-textarea-left" : "form-textarea-right";
           } else {
-            uiSchema[key] = {
-              "ui:widget": "TextAreaWidget",
-              "ui:options": {
-                rows: 4,
-                classNames: "form-textarea-full"
-              }
-            };
+            layoutClass = "form-textarea-full";
           }
-        } else if (property.type === 'number' || property.type === 'integer') {
-          // Number fields
-          if (propertyCount <= 3) {
-            uiSchema[key] = {
-              "ui:widget": "NumberWidget",
-              "ui:options": {
-                classNames: "form-row-3-col"
-              }
-            };
-          } else if (propertyCount <= 4) {
-            uiSchema[key] = {
-              "ui:widget": "NumberWidget",
-              "ui:options": {
-                classNames: "form-row-4-col"
-              }
-            };
-          } else {
-            uiSchema[key] = {
-              "ui:widget": "NumberWidget",
-              "ui:options": {
-                classNames: "form-single-col"
-              }
-            };
-          }
+        } else if (widgetType === 'CheckboxWidget' || widgetType === 'RadioWidget') {
+          // Boolean and radio fields take full width
+          layoutClass = "form-single-col";
         } else {
-          // Regular text fields
+          // Regular fields
           if (propertyCount <= 2) {
-            uiSchema[key] = {
-              "ui:options": {
-                classNames: "form-row-2-col"
-              }
-            };
+            layoutClass = "form-row-2-col";
           } else if (propertyCount <= 3) {
-            uiSchema[key] = {
-              "ui:options": {
-                classNames: "form-row-3-col"
-              }
-            };
+            layoutClass = "form-row-3-col";
           } else if (propertyCount <= 4) {
-            uiSchema[key] = {
-              "ui:options": {
-                classNames: "form-row-4-col"
-              }
-            };
+            layoutClass = "form-row-4-col";
           } else {
-            uiSchema[key] = {
-              "ui:options": {
-                classNames: "form-single-col"
-              }
-            };
+            layoutClass = "form-single-col";
           }
         }
         
-        // Special handling for email format
+        uiSchema[key] = {
+          "ui:widget": widgetType,
+          "ui:options": {
+            classNames: layoutClass,
+            rows: widgetType === 'TextAreaWidget' ? 4 : undefined,
+          }
+        };
+        
+        // Add specific options for certain widgets
         if (property.format === 'email') {
-          uiSchema[key] = {
-            ...uiSchema[key],
-            "ui:options": {
-              ...uiSchema[key]["ui:options"],
-              inputType: "email"
-            }
+          (uiSchema[key] as Record<string, unknown>)["ui:options"] = {
+            ...(uiSchema[key] as Record<string, unknown>)["ui:options"] as Record<string, unknown>,
+            inputType: "email"
           };
+        }
+        
+        if (property.description) {
+          (uiSchema[key] as Record<string, unknown>)["ui:description"] = property.description;
         }
       });
     }
@@ -141,7 +202,7 @@ export default function DynamicForm({
 
   const uiSchema = createUiSchema(schema);
 
-  const onSubmit = ({ formData }: IChangeEvent<any>) => {
+  const onSubmit = ({ formData }: IChangeEvent) => {
     console.log("Form Data Submitted:", formData);
     alert(JSON.stringify(formData, null, 2));
     
@@ -155,7 +216,7 @@ export default function DynamicForm({
     }
   };
 
-  const onChange = ({ formData }: IChangeEvent<any>) => {
+  const onChange = ({ formData }: IChangeEvent) => {
     if (formData) {
       setFormData(formData);
       onFormChange?.(formData);
@@ -212,9 +273,20 @@ export default function DynamicForm({
         showErrorList={false}
         noValidate={true}
         widgets={{ 
+          // Core widgets
           NumberWidget: CustomNumberWidget, 
           TextAreaWidget: CustomTextArea,
-          TextWidget: CustomTextWidget
+          TextWidget: CustomTextWidget,
+          
+          // Additional widgets
+          CheckboxWidget: CheckboxWidget,
+          CheckboxesWidget: CheckboxesWidget,
+          SelectWidget: SelectWidget,
+          RadioWidget: RadioWidget,
+          EmailWidget: EmailWidget,
+          DateWidget: DateWidget,
+          PasswordWidget: PasswordWidget,
+          RangeWidget: RangeWidget,
         }}
       />
 
