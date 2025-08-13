@@ -1,0 +1,96 @@
+{
+    "type": "object",
+    "required": [
+        "fullName",
+        "age",
+        "email",
+        "bio",
+        "country",
+        "gender",
+        "newsletter",
+        "experienceYears",
+        "skills",
+        "notes"
+    ],
+    "properties": {
+        "fullName": {
+            "type": "string",
+            "title": "Full Name",
+            "x-key": "fullName"
+        },
+        "age": {
+            "type": "number",
+            "title": "Age",
+            "minimum": 18,
+            "maximum": 65,
+            "x-key": "age"
+        },
+        "email": {
+            "type": "string",
+            "title": "Email",
+            "format": "email",
+            "x-key": "email"
+        },
+        "bio": {
+            "type": "string",
+            "title": "Short Bio",
+            "minLength": 10,
+            "x-key": "bio"
+        },
+        "country": {
+            "type": "string",
+            "title": "Country",
+            "enum": [
+                "Vietnam",
+                "USA",
+                "Japan",
+                "Germany",
+                "Australia"
+            ],
+            "x-key": "country"
+        },
+        "gender": {
+            "type": "string",
+            "title": "Gender",
+            "enum": [
+                "Male",
+                "Female",
+                "Other"
+            ],
+            "x-key": "gender"
+        },
+        "newsletter": {
+            "type": "boolean",
+            "title": "Subscribe to newsletter?",
+            "x-key": "newsletter"
+        },
+        "experienceYears": {
+            "type": "number",
+            "title": "Years of Experience",
+            "minimum": 0,
+            "x-key": "experienceYears"
+        },
+        "skills": {
+            "type": "array",
+            "title": "Skills",
+            "items": {
+                "type": "string",
+                "enum": [
+                    "JavaScript",
+                    "React",
+                    "Node.js",
+                    "Python",
+                    "Java",
+                    "C#"
+                ]
+            },
+            "uniqueItems": true,
+            "x-key": "skills"
+        },
+        "notes": {
+            "type": "string",
+            "title": "Additional Notes",
+            "x-key": "notes"
+        }
+    }
+}

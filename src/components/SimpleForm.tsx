@@ -36,24 +36,21 @@ export default function SimpleForm() {
   };
 
   return (
-    <div style={{ maxWidth: 1000, margin: "auto", padding: 20 }}>
+    <div style={{ maxWidth: 1000, margin: "auto", padding: 0 }}>
       <div
         style={{
           border: "1px solid #d1d5db",
           borderRadius: 10,
           padding: 10,
           marginBottom: 20,
+          display: "grid",
+          gridTemplateColumns: "repeat(4, 1fr)", // 4 cột đều nhau
+          gap: 16, // khoảng cách giữa các ô
         }}
       >
         {Object.entries(initialFormData).map(([key, value]) => (
           <div
             key={key}
-            style={{
-              width: "23%",
-              display: "inline-block",
-              marginRight: "2.66%",
-              marginBottom: 16,
-            }}
           >
             <label
               style={{ display: "block", marginBottom: 6, fontWeight: 500 }}
