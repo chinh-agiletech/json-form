@@ -1,353 +1,132 @@
 import React, { useState } from "react";
 import { JSONSchema7 } from "json-schema";
+import demoSchema from "../schemas/demoSchema.json"; // Import file JSON có sẵn
 
 interface SchemaInputProps {
-  onSchemaGenerated?: (schema: JSONSchema7) => void;
-  onUiSchemaGenerated?: (uiSchema: any) => void;
+  onSchemaGenerated?: (schema: JSONSchema7, data: any) => void;
 }
 
-export default function SchemaInput({
-  onSchemaGenerated,
-  onUiSchemaGenerated,
-}: SchemaInputProps) {
-  const [uiSchemaText, setUiSchemaText] = useState("");
-  const [jsonSchemaText, setJsonSchemaText] = useState("");
+export default function SchemaInput({ onSchemaGenerated }: SchemaInputProps) {
+  const [fieldText, setFieldText] = useState("");
+  const [dataText, setDataText] = useState("");
   const [error, setError] = useState("");
+  const [availableKeys, setAvailableKeys] = useState<string[]>([]);
 
-  const defaultUiSchema = {
-    "ui:submitButtonOptions": {
-      norender: true,
-    },
-    "ui:order": ["unitTestScore", "recommendation", "teacherCommentENG"],
-    unitTestScore: {
-      "ui:widget": "number",
-      "ui:options": {
-        classNames: "form-single-col",
-      },
-      "ui:placeholder": "Enter number",
-    },
-    recommendation: {
-      "ui:widget": "textarea",
-      "ui:options": {
-        rows: 4,
-        classNames: "form-textarea-left",
-      },
-      "ui:placeholder": "Enter text",
-    },
-    teacherCommentENG: {
-      "ui:widget": "textarea",
-      "ui:options": {
-        rows: 4,
-        classNames: "form-textarea-right",
-      },
-      "ui:placeholder": "Enter text",
-    },
-  };
+  // Lấy danh sách tất cả x-key có sẵn khi component mount
+  React.useEffect(() => {
+    const keys = Object.entries(demoSchema.properties || {})
+      .map(([propName, propSchema]) => (propSchema as any)["x-key"])
+      .filter(Boolean);
+    setAvailableKeys(keys);
+  }, []);
 
-  const defaultJsonSchema: JSONSchema7 = {
-    type: "object",
-    required: ["unitTestScore", "recommendation", "teacherCommentENG"],
-    properties: {
-      unitTestScore: {
-        type: "number",
-        title: "Unit Test Score",
-        minimum: 0,
-        maximum: 100,
-      },
-      recommendation: {
-        type: "string",
-        title: "Recommendation",
-      },
-      teacherCommentENG: {
-        type: "string",
-        title: "Teacher Comment (English)",
-      },
-    },
-  };
-
-  // Function to generate JSON schema from UI schema
-  const generateJsonSchemaFromUiSchema = (uiSchema: any): JSONSchema7 => {
-    const properties: Record<string, any> = {};
-    const required: string[] = [];
-
-    // Get field order from ui:order or extract from uiSchema keys
-    const fieldOrder =
-      uiSchema["ui:order"] ||
-      Object.keys(uiSchema).filter((key) => !key.startsWith("ui:"));
-
-    fieldOrder.forEach((fieldName: string) => {
-      const fieldConfig = uiSchema[fieldName];
-      if (fieldConfig && typeof fieldConfig === "object") {
-        const widget = fieldConfig["ui:widget"];
-
-        // Determine field type based on widget
-        let fieldType = "string";
-        let format: string | undefined;
-
-        switch (widget) {
-          case "NumberWidget":
-            fieldType = "number";
-            break;
-          case "TextAreaWidget":
-            fieldType = "string";
-            break;
-          case "EmailWidget":
-            fieldType = "string";
-            format = "email";
-            break;
-          case "CheckboxWidget":
-            fieldType = "boolean";
-            break;
-          case "DateWidget":
-            fieldType = "string";
-            format = "date";
-            break;
-          case "PasswordWidget":
-            fieldType = "string";
-            format = "password";
-            break;
-          default:
-            fieldType = "string";
-        }
-
-        const property: any = {
-          type: fieldType,
-          title:
-            fieldName.charAt(0).toUpperCase() +
-            fieldName.slice(1).replace(/([A-Z])/g, " $1"),
-        };
-
-        if (format) {
-          property.format = format;
-        }
-
-        // Add some default constraints
-        if (fieldType === "number") {
-          property.minimum = 0;
-          property.maximum = 100;
-        }
-
-        properties[fieldName] = property;
-        required.push(fieldName);
-      }
-    });
-
-    return {
-      type: "object",
-      required,
-      properties,
-    };
-  };
-
-  const handleSchemaSubmit = () => {
+  const handleSubmit = () => {
     try {
-      let uiSchema;
-      let jsonSchema;
+      const selectedKeys = fieldText
+        .split(",")
+        .map((k) => k.trim())
+        .filter(Boolean);
 
-      if (uiSchemaText.trim() === "" && jsonSchemaText.trim() === "") {
-        // Use default schemas if both inputs are empty
-        uiSchema = defaultUiSchema;
-        jsonSchema = defaultJsonSchema;
-      } else if (jsonSchemaText.trim() !== "") {
-        // Use provided JSON schema if available
-        jsonSchema = JSON.parse(jsonSchemaText);
-        // Use provided UI schema or generate from JSON schema
-        if (uiSchemaText.trim() !== "") {
-          uiSchema = JSON.parse(uiSchemaText);
-        } else {
-          uiSchema = defaultUiSchema;
+      const filteredProps: Record<string, any> = {};
+      const filteredRequired: string[] = [];
+
+      for (const [propName, propSchema] of Object.entries(
+        demoSchema.properties || {}
+      )) {
+        const xKey = (propSchema as any)["x-key"];
+        if (selectedKeys.includes(xKey)) {
+          filteredProps[propName] = propSchema;
+          if (demoSchema.required?.includes(propName)) {
+            filteredRequired.push(propName);
+          }
         }
-      } else if (uiSchemaText.trim() !== "") {
-        uiSchema = JSON.parse(uiSchemaText);
-        jsonSchema = generateJsonSchemaFromUiSchema(uiSchema);
       }
+
+      if (Object.keys(filteredProps).length === 0) {
+        throw new Error("No matching fields found for the provided x-keys");
+      }
+
+      const finalSchema: JSONSchema7 = {
+        type: "object",
+        required: filteredRequired,
+        properties: filteredProps,
+      };
+      console.log("Generated Schema:", finalSchema);
+
+      let parsedData = {};
+      if (dataText.trim()) {
+        parsedData = JSON.parse(dataText);
+      }
+      console.log("Parsed Data:", parsedData);
 
       setError("");
-
-      // Send both schemas to parent component
-      if (onSchemaGenerated) {
-        onSchemaGenerated(jsonSchema);
-      }
-
-      if (onUiSchemaGenerated) {
-        onUiSchemaGenerated(uiSchema);
-      }
+      onSchemaGenerated?.(finalSchema, parsedData);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : "Invalid JSON schema or UI schema"
+        err instanceof Error
+          ? err.message
+          : "Invalid field list or data JSON"
       );
     }
   };
 
-  const inputStyle = {
+  const textareaStyle = {
     width: "100%",
-    minHeight: "300px",
-    padding: "12px",
-    border: "1px solid #d1d5db",
-    borderRadius: "8px",
-    fontSize: "14px",
-    fontFamily: "monospace",
-    outline: "none",
-    resize: "vertical" as const,
-    boxSizing: "border-box" as const,
-  };
-
-  const buttonStyle = {
-    padding: "12px 24px",
-    backgroundColor: "#3b82f6",
-    color: "white",
-    border: "none",
-    borderRadius: "8px",
-    fontSize: "16px",
-    fontWeight: "500",
-    cursor: "pointer",
-    transition: "all 0.2s ease",
-  };
-
-  const errorStyle = {
-    color: "#ef4444",
-    fontSize: "14px",
-    marginTop: "8px",
+    minHeight: "120px",
     padding: "8px",
-    backgroundColor: "#fef2f2",
-    border: "1px solid #fecaca",
-    borderRadius: "4px",
+    border: "1px solid #ccc",
+    borderRadius: "6px",
+    fontFamily: "monospace",
   };
 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
-      <div style={{ marginBottom: "20px" }}>
-        <h2
-          style={{
-            marginBottom: "16px",
-            color: "#1f2937",
-            fontSize: "24px",
-            fontWeight: "600",
-          }}
-        >
-          UI Schema Input
-        </h2>
+      <h2>Schema Input</h2>
 
-        <div style={{ marginBottom: "16px" }}>
-          <label
-            style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#374151",
-            }}
-          >
-            Enter UI Schema JSON (leave empty to use default UI schema):
-          </label>
-
-          <textarea
-            value={uiSchemaText}
-            onChange={(e) => setUiSchemaText(e.target.value)}
-            placeholder={`Try this UI schema example:
-{
-  "ui:submitButtonOptions": {
-    "norender": true
-  },
-  "ui:order": ["unitTestScore", "recommendation", "teacherCommentENG"],
-  "unitTestScore": {
-    "ui:widget": "NumberWidget",
-    "ui:options": {
-      "classNames": "form-single-col"
-    },
-    "ui:placeholder": "Enter number"
-  },
-  "recommendation": {
-    "ui:widget": "TextAreaWidget",
-    "ui:options": {
-      "rows": 4,
-      "classNames": "form-textarea-left"
-    },
-    "ui:placeholder": "Enter text"
-  },
-  "teacherCommentENG": {
-    "ui:widget": "TextAreaWidget",
-    "ui:options": {
-      "rows": 4,
-      "classNames": "form-textarea-right"
-    },
-    "ui:placeholder": "Enter text"
-  }
-}`}
-            style={inputStyle}
-          />
-        </div>
-        <h2
-          style={{
-            marginBottom: "16px",
-            color: "#1f2937",
-            fontSize: "24px",
-            fontWeight: "600",
-          }}
-        >
-          Schema Input
-        </h2>
-
-        <div style={{ marginBottom: "16px" }}>
-          <label
-            style={{
-              display: "block",
-              marginBottom: "8px",
-              fontWeight: "500",
-              color: "#374151",
-            }}
-          >
-            Enter JSON Schema (leave empty to use default or generate from UI
-            schema):
-          </label>
-
-          <textarea
-            value={jsonSchemaText}
-            onChange={(e) => setJsonSchemaText(e.target.value)}
-            placeholder={`Try this JSON schema example:
-{
-  "type": "object",
-  "required": ["name", "email", "age"],
-  "properties": {
-    "name": {
-      "type": "string",
-      "title": "Full Name"
-    },
-    "email": {
-      "type": "string",
-      "title": "Email Address",
-      "format": "email"
-    },
-    "age": {
-      "type": "number",
-      "title": "Age",
-      "minimum": 0,
-      "maximum": 120
-    }
-  }
-}`}
-            style={inputStyle}
-          />
-        </div>
-
-        {error && (
-          <div style={errorStyle}>
-            <strong>Error:</strong> {error}
-          </div>
-        )}
-
-        <button
-          onClick={handleSchemaSubmit}
-          style={buttonStyle}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.backgroundColor = "#2563eb";
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.backgroundColor = "#3b82f6";
-          }}
-        >
-          Generate Form
-        </button>
+      <div style={{ marginBottom: "16px", padding: "12px", backgroundColor: "#f3f4f6", borderRadius: "6px" }}>
+        <h4 style={{ margin: "0 0 8px", fontSize: "14px", fontWeight: "600" }}>Available X-Keys:</h4>
+        <p style={{ margin: 0, fontSize: "12px", color: "#6b7280", lineHeight: "1.5" }}>
+          {availableKeys.join(", ")}
+        </p>
       </div>
+
+      <label>Field (comma separated, match x-key):</label>
+      <textarea
+        style={textareaStyle}
+        value={fieldText}
+        onChange={(e) => setFieldText(e.target.value)}
+        placeholder="Example: fullName,age,gender"
+      />
+
+      <label>Data JSON (optional - for pre-filling form):</label>
+      <textarea
+        style={textareaStyle}
+        value={dataText}
+        onChange={(e) => setDataText(e.target.value)}
+        placeholder={`Example:
+          {
+            "fullName": "John Doe",
+            "age": 25,
+            "gender": "Male"
+          }`}
+        />
+
+      {error && <div style={{ color: "red", marginTop: "8px", padding: "8px", backgroundColor: "#fef2f2", borderRadius: "4px" }}>{error}</div>}
+
+      <button
+        style={{
+          marginTop: "10px",
+          padding: "10px 20px",
+          backgroundColor: "#3b82f6",
+          color: "white",
+          border: "none",
+          borderRadius: "6px",
+          cursor: "pointer",
+        }}
+        onClick={handleSubmit}
+      >
+        Generate Form
+      </button>
     </div>
   );
 }

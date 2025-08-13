@@ -1,58 +1,26 @@
 import React, { useState, useCallback, useEffect } from "react";
 import Form, { IChangeEvent } from "@rjsf/core";
 import validator from "@rjsf/validator-ajv8";
-import { JSONSchema7 } from 'json-schema';
-import styles from './DynamicForm.module.css';
-import CustomTextWidget from './ui/CustomTextWidget/CustomTextWidget';
-import CustomTextArea from './ui/CustomTextArea/CustomTextArea';
-import CustomNumberWidget from './ui/CustomNumberWidget/CustomNumberWidget';
-import CheckboxWidget from './ui/CheckboxWidget/CheckboxWidget';
-import CheckboxesWidget from './ui/CheckboxesWidget/CheckboxesWidget';
-import SelectWidget from './ui/SelectWidget/SelectWidget';
-import RadioWidget from './ui/RadioWidget/RadioWidget';
-import EmailWidget from './ui/EmailWidget/EmailWidget';
-import DateWidget from './ui/DateWidget/DateWidget';
-import PasswordWidget from './ui/PasswordWidget/PasswordWidget';
-import RangeWidget from './ui/RangeWidget/RangeWidget';
+import { JSONSchema7 } from "json-schema";
+import styles from "./DynamicForm.module.css";
 
-// Widget mapping based on field types and formats (currently unused but kept for future reference)
-// const widgetMap = {
-//   boolean: {
-//     checkbox: "CheckboxWidget",
-//     radio: "RadioWidget", 
-//     select: "SelectWidget",
-//   },
-//   string: {
-//     text: "TextWidget",
-//     password: "PasswordWidget",
-//     email: "EmailWidget",
-//     textarea: "TextAreaWidget",
-//     radio: "RadioWidget",
-//     select: "SelectWidget",
-//     date: "DateWidget",
-//     color: "ColorWidget",
-//   },
-//   number: {
-//     text: "TextWidget",
-//     select: "SelectWidget",
-//     range: "RangeWidget",
-//     radio: "RadioWidget",
-//   },
-//   integer: {
-//     text: "TextWidget", 
-//     select: "SelectWidget",
-//     range: "RangeWidget",
-//     radio: "RadioWidget",
-//   },
-//   array: {
-//     select: "SelectWidget",
-//     checkboxes: "CheckboxesWidget",
-//   },
-// };
+// Custom Widgets
+import CustomTextWidget from "./ui/CustomTextWidget/CustomTextWidget";
+import CustomTextArea from "./ui/CustomTextArea/CustomTextArea";
+import CustomNumberWidget from "./ui/CustomNumberWidget/CustomNumberWidget";
+import CheckboxWidget from "./ui/CheckboxWidget/CheckboxWidget";
+import CheckboxesWidget from "./ui/CheckboxesWidget/CheckboxesWidget";
+import SelectWidget from "./ui/SelectWidget/SelectWidget";
+import RadioWidget from "./ui/RadioWidget/RadioWidget";
+import EmailWidget from "./ui/EmailWidget/EmailWidget";
+import DateWidget from "./ui/DateWidget/DateWidget";
+import PasswordWidget from "./ui/PasswordWidget/PasswordWidget";
+import RangeWidget from "./ui/RangeWidget/RangeWidget";
 
 interface DynamicFormProps {
   schema: JSONSchema7;
   uiSchema?: any;
+  initialData?: Record<string, unknown>; // Thêm prop để nhận dữ liệu khởi tạo
   onClose?: () => void;
   onFormChange?: (data: Record<string, unknown>) => void;
   onValidation?: (isValid: boolean, errors: ValidationError[]) => void;
@@ -66,198 +34,155 @@ interface ValidationError {
   property?: string;
 }
 
-export default function DynamicForm({ 
-  schema, 
+export default function DynamicForm({
+  schema,
   uiSchema,
-  onClose, 
-  onFormChange, 
-  onValidation, 
-  resetTrigger 
+  initialData = {}, // Nhận dữ liệu khởi tạo với giá trị mặc định là object rỗng
+  onClose,
+  onFormChange,
+  onValidation,
+  resetTrigger,
 }: DynamicFormProps) {
-  const [formData, setFormData] = useState<Record<string, unknown>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>(initialData);
   const [isFormValid, setIsFormValid] = useState(false);
 
-  // Function to determine the best widget based on field properties
+  // Xác định widget phù hợp cho mỗi field
   const getWidgetForField = (property: JSONSchema7): string => {
     const type = property.type as string;
-    
-    // Handle arrays first
-    if (type === 'array' && property.items) {
+
+    if (type === "array" && property.items) {
       const items = property.items as JSONSchema7;
-      if (items.enum && items.enum.length > 0) {
-        return 'CheckboxesWidget'; // Multiple selection for arrays with enum
-      }
-      return 'SelectWidget';
+      if (items.enum?.length) return "CheckboxesWidget";
+      return "SelectWidget";
     }
-    
-    // Handle specific formats first
+
     if (property.format) {
       switch (property.format) {
-        case 'email':
-          return 'EmailWidget';
-        case 'date':
-          return 'DateWidget';
-        case 'password':
-          return 'PasswordWidget';
-        default:
-          break;
+        case "email":
+          return "EmailWidget";
+        case "date":
+          return "DateWidget";
+        case "password":
+          return "PasswordWidget";
       }
     }
-    
-    // Handle enums (select or radio)
-    if (property.enum && property.enum.length > 0) {
-      if (property.enum.length <= 3) {
-        return type === 'boolean' ? 'CheckboxWidget' : 'RadioWidget';
-      } else {
-        return 'SelectWidget';
-      }
+
+    if (property.enum?.length) {
+      return property.enum.length <= 3 ? "RadioWidget" : "SelectWidget";
     }
-    
-    // Handle based on type
+
     switch (type) {
-      case 'boolean':
-        return 'CheckboxWidget';
-      case 'string':
-        if (property.maxLength && property.maxLength > 100) {
-          return 'TextAreaWidget';
-        }
-        return 'TextWidget';
-      case 'number':
-      case 'integer':
-        return 'NumberWidget';
+      case "boolean":
+        return "CheckboxWidget";
+      case "string":
+        return property.maxLength && property.maxLength > 100
+          ? "TextAreaWidget"
+          : "TextWidget";
+      case "number":
+      case "integer":
+        return "NumberWidget";
       default:
-        return 'TextWidget';
+        return "TextWidget";
     }
   };
 
-  // Create default UI schema for better styling
+  // Sinh ra uiSchema mặc định
   const createUiSchema = (schema: JSONSchema7) => {
-    const generatedUiSchema: Record<string, Record<string, unknown> | string[] | unknown> = {
-      "ui:submitButtonOptions": {
-        "norender": true
-      }
+    const generated: Record<string, any> = {
+      "ui:submitButtonOptions": { norender: true },
     };
-    
+
     if (schema.properties) {
-      const propertyKeys = Object.keys(schema.properties);
-      const propertyCount = propertyKeys.length;
-      
-      // Set order for consistent layout
-      generatedUiSchema["ui:order"] = propertyKeys;
-      
-      propertyKeys.forEach((key, index) => {
-        const property = schema.properties![key] as JSONSchema7;
-        const widgetType = getWidgetForField(property);
-        
-        // Determine layout class based on widget type and field count
+      const keys = Object.keys(schema.properties);
+      generated["ui:order"] = keys;
+
+      keys.forEach((key, index) => {
+        const prop = schema.properties![key] as JSONSchema7;
+        const widget = getWidgetForField(prop);
+
         let layoutClass = "form-single-col";
-        
-        if (widgetType === 'TextAreaWidget') {
-          // Textarea fields
-          if (propertyCount <= 2) {
-            layoutClass = index % 2 === 0 ? "form-textarea-left" : "form-textarea-right";
-          } else {
-            layoutClass = "form-textarea-full";
-          }
-        } else if (widgetType === 'CheckboxWidget' || widgetType === 'RadioWidget') {
-          // Boolean and radio fields take full width
-          layoutClass = "form-single-col";
-        } else {
-          // Regular fields
-          if (propertyCount <= 2) {
-            layoutClass = "form-row-2-col";
-          } else if (propertyCount <= 3) {
-            layoutClass = "form-row-3-col";
-          } else if (propertyCount <= 4) {
-            layoutClass = "form-row-4-col";
-          } else {
-            layoutClass = "form-single-col";
-          }
+        if (widget === "TextAreaWidget") {
+          layoutClass = "form-textarea-full";
+        } else if (keys.length <= 2) {
+          layoutClass = "form-row-2-col";
+        } else if (keys.length <= 3) {
+          layoutClass = "form-row-3-col";
+        } else if (keys.length <= 4) {
+          layoutClass = "form-row-4-col";
         }
-        
-        generatedUiSchema[key] = {
-          "ui:widget": widgetType,
+
+        generated[key] = {
+          "ui:widget": widget,
           "ui:options": {
             classNames: layoutClass,
-            rows: widgetType === 'TextAreaWidget' ? 4 : undefined,
-          }
+            rows: widget === "TextAreaWidget" ? 4 : undefined,
+          },
+          ...(prop.description && { "ui:description": prop.description }),
         };
-        
-        // Add specific options for certain widgets
-        if (property.format === 'email') {
-          (generatedUiSchema[key] as Record<string, unknown>)["ui:options"] = {
-            ...(generatedUiSchema[key] as Record<string, unknown>)["ui:options"] as Record<string, unknown>,
-            inputType: "email"
-          };
-        }
-        
-        if (property.description) {
-          (generatedUiSchema[key] as Record<string, unknown>)["ui:description"] = property.description;
-        }
       });
     }
-    
-    return generatedUiSchema;
+
+    return generated;
   };
 
-  // Use provided uiSchema if available, otherwise generate one
   const finalUiSchema = uiSchema || createUiSchema(schema);
 
   const onSubmit = ({ formData }: IChangeEvent) => {
     console.log("Form Data Submitted:", formData);
-    alert(JSON.stringify(formData, null, 2));
     
-    // Reset form
-    setFormData({});
+    // Hiển thị dữ liệu đã submit với format đẹp hơn
+    const submittedData = {
+      ...formData,
+      _submittedAt: new Date().toISOString(),
+      _schemaFields: Object.keys(schema.properties || {}),
+    };
+    
+    alert(`Form Submitted Successfully!\n\n${JSON.stringify(submittedData, null, 2)}`);
+    
+    // Reset form về dữ liệu khởi tạo
+    setFormData(initialData || {});
     setIsFormValid(false);
-    
-    // Close modal
-    if (onClose) {
-      onClose();
-    }
+    onClose?.();
   };
 
   const onChange = ({ formData }: IChangeEvent) => {
-    if (formData) {
-      setFormData(formData);
-      onFormChange?.(formData);
-    }
+    setFormData(formData || {});
+    onFormChange?.(formData);
   };
 
   const onError = (errors: ValidationError[]) => {
     onValidation?.(false, errors);
   };
 
-  // Validate form data manually
   const validateForm = useCallback(() => {
     const result = validator.validateFormData(formData, schema);
-    const hasErrors = result.errors && result.errors.length > 0;
-
-    // Check for empty required fields
     const requiredFields = schema.required || [];
-    const hasEmptyRequiredFields = requiredFields.some(
+    const hasEmptyRequired = requiredFields.some(
       (field) =>
         !formData[field] ||
-        (typeof formData[field] === 'string' && formData[field].trim() === "")
+        (typeof formData[field] === "string" && formData[field].trim() === "")
     );
-
-    const isValid = !hasErrors && !hasEmptyRequiredFields;
+    const isValid = !result.errors.length && !hasEmptyRequired;
     setIsFormValid(isValid);
-    onValidation?.(isValid, (result.errors || []) as ValidationError[]);
-    return isValid;
+    onValidation?.(isValid, result.errors as ValidationError[]);
   }, [formData, schema, onValidation]);
 
-  // Call validation whenever data changes
+  // Cập nhật formData khi có dữ liệu khởi tạo mới
+  useEffect(() => {
+    if (initialData && Object.keys(initialData).length > 0) {
+      setFormData(initialData);
+    }
+  }, [initialData]);
+
   useEffect(() => {
     validateForm();
   }, [validateForm]);
 
-  // Reset form when resetTrigger changes
   useEffect(() => {
-    if (resetTrigger !== undefined && resetTrigger > 0) {
-      setFormData({});
+    if (resetTrigger && resetTrigger > 0) {
+      setFormData(initialData || {}); // Reset về dữ liệu khởi tạo thay vì object rỗng
     }
-  }, [resetTrigger]);
+  }, [resetTrigger, initialData]);
 
   return (
     <>
@@ -269,127 +194,93 @@ export default function DynamicForm({
         onChange={onChange}
         onError={onError}
         formData={formData}
-        liveValidate={false}
+        liveValidate={true} // Bật liveValidate
         showErrorList={false}
-        noValidate={true}
-        widgets={{ 
-          integer: CustomNumberWidget,
-          number: CustomNumberWidget,
-          textarea: CustomTextArea,
-          text: CustomTextWidget,
-          select: SelectWidget,
-          // // Additional widgets
-          // CheckboxWidget: CheckboxWidget,
-          // CheckboxesWidget: CheckboxesWidget,
-          // SelectWidget: SelectWidget,
-          // RadioWidget: RadioWidget,
-          // EmailWidget: EmailWidget,
-          // DateWidget: DateWidget,
-          // PasswordWidget: PasswordWidget,
-          // RangeWidget: RangeWidget,
+        noValidate={true} // Tắt noValidate
+        widgets={{
+          TextWidget: CustomTextWidget,
+          TextAreaWidget: CustomTextArea,
+          NumberWidget: CustomNumberWidget,
+          CheckboxWidget,
+          CheckboxesWidget,
+          SelectWidget,
+          RadioWidget,
+          EmailWidget,
+          DateWidget,
+          PasswordWidget,
+          RangeWidget,
         }}
       />
 
       {onClose && (
-        <>
-          {/* Schema Info */}
-          <div style={{ 
-            marginBottom: "20px", 
-            padding: "12px", 
-            backgroundColor: "#f9fafb", 
-            borderRadius: "8px",
-            border: "1px solid #e5e7eb"
-          }}>
-            <h3 style={{ margin: "0 0 8px 0", color: "#374151", fontSize: "16px" }}>
-              Schema Info
-            </h3>
-            <p style={{ margin: "0", fontSize: "14px", color: "#6b7280" }}>
-              Required fields: {schema.required && schema.required.length > 0 ? schema.required.join(", ") : "None"}
-              Required fields: {schema.required ? schema.required.join(", ") : "None"}
+        <div style={{ marginTop: "20px" }}>
+          <div
+            style={{
+              padding: "12px",
+              backgroundColor: "#f9fafb",
+              borderRadius: "8px",
+              border: "1px solid #e5e7eb",
+              marginBottom: "20px",
+            }}
+          >
+            <h3 style={{ margin: "0 0 8px", fontSize: "16px" }}>Schema Info</h3>
+            <p style={{ margin: "0 0 4px", fontSize: "14px" }}>
+              Required fields:{" "}
+              {schema.required?.length ? schema.required.join(", ") : "None"}
             </p>
+            <p style={{ margin: "0 0 4px", fontSize: "14px" }}>
+              Total fields: {Object.keys(schema.properties || {}).length}
+            </p>
+            <p style={{ margin: 0, fontSize: "14px", color: "#6b7280" }}>
+              X-Keys: {Object.entries(schema.properties || {})
+                .map(([_, prop]: [string, any]) => prop["x-key"])
+                .filter(Boolean)
+                .join(", ") || "None"}
+            </p>
+            {initialData && Object.keys(initialData).length > 0 && (
+              <p style={{ margin: "4px 0 0", fontSize: "14px", color: "#059669" }}>
+                ✓ Form initialized with data
+              </p>
+            )}
           </div>
 
-          {/* Action Buttons */}
-          <div style={{
-            marginTop: "20px",
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: "12px",
-          }}>
+          <div style={{ display: "flex", justifyContent: "flex-end", gap: "12px" }}>
             <button
               type="button"
               style={{
                 padding: "12px 24px",
                 backgroundColor: "#fff",
-                color: "black",
                 border: "1px solid #d1d5db",
                 borderRadius: "8px",
-                fontSize: "16px",
-                fontWeight: "500",
                 cursor: "pointer",
-                transition: "all 0.2s ease",
               }}
               onClick={() => {
-                setFormData({});
-                if (onClose) {
-                  onClose();
-                }
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = "#f9fafb";
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.backgroundColor = "#fff";
+                setFormData(initialData || {}); // Reset về dữ liệu khởi tạo
+                onClose();
               }}
             >
               Cancel
             </button>
-            
+
             <button
               type="button"
               style={{
                 padding: "12px 24px",
                 backgroundColor: isFormValid ? "#3b82f6" : "#d1d5db",
-                color: isFormValid ? "white" : "#6b7280",
+                color: isFormValid ? "#fff" : "#6b7280",
                 border: "none",
                 borderRadius: "8px",
-                fontSize: "16px",
-                fontWeight: "500",
                 cursor: isFormValid ? "pointer" : "not-allowed",
-                opacity: isFormValid ? 1 : 0.8,
-                transition: "all 0.2s ease",
               }}
               onClick={() => {
-                if (isFormValid) {
-                  console.log("Form Data Submitted:", formData);
-                  alert(JSON.stringify(formData, null, 2));
-                  
-                  // Reset form
-                  setFormData({});
-                  setIsFormValid(false);
-                  
-                  // Close modal
-                  if (onClose) {
-                    onClose();
-                  }
-                }
+                if (isFormValid) onSubmit({ formData } as IChangeEvent);
               }}
               disabled={!isFormValid}
-              onMouseEnter={(e) => {
-                if (isFormValid) {
-                  e.currentTarget.style.backgroundColor = "#2563eb";
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (isFormValid) {
-                  e.currentTarget.style.backgroundColor = "#3b82f6";
-                }
-              }}
             >
               Submit
             </button>
           </div>
-        </>
+        </div>
       )}
     </>
   );
