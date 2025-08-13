@@ -1,5 +1,5 @@
 'use client'
-// import 'survey-core/survey-core.css';
+import 'survey-core/survey-core.css';
 import { Model } from 'survey-core';
 import { Survey } from 'survey-react-ui';
 import styles from './Survey.module.css';
