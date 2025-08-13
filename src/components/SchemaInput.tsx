@@ -1,47 +1,47 @@
 import React, { useState } from "react";
-import { JSONSchema7 } from 'json-schema';
+import { JSONSchema7 } from "json-schema";
 
 interface SchemaInputProps {
   onSchemaGenerated?: (schema: JSONSchema7) => void;
   onUiSchemaGenerated?: (uiSchema: any) => void;
 }
 
-export default function SchemaInput({ onSchemaGenerated, onUiSchemaGenerated }: SchemaInputProps) {
+export default function SchemaInput({
+  onSchemaGenerated,
+  onUiSchemaGenerated,
+}: SchemaInputProps) {
   const [uiSchemaText, setUiSchemaText] = useState("");
+  const [jsonSchemaText, setJsonSchemaText] = useState("");
   const [error, setError] = useState("");
 
   const defaultUiSchema = {
     "ui:submitButtonOptions": {
-      "norender": true
+      norender: true,
     },
-    "ui:order": [
-      "unitTestScore",
-      "recommendation",
-      "teacherCommentENG"
-    ],
-    "unitTestScore": {
-      "ui:widget": "NumberWidget",
+    "ui:order": ["unitTestScore", "recommendation", "teacherCommentENG"],
+    unitTestScore: {
+      "ui:widget": "number",
       "ui:options": {
-        "classNames": "form-single-col"
+        classNames: "form-single-col",
       },
-      "ui:placeholder": "Enter number"
+      "ui:placeholder": "Enter number",
     },
-    "recommendation": {
-      "ui:widget": "TextAreaWidget",
+    recommendation: {
+      "ui:widget": "textarea",
       "ui:options": {
-        "rows": 4,
-        "classNames": "form-textarea-left"
+        rows: 4,
+        classNames: "form-textarea-left",
       },
-      "ui:placeholder": "Enter text"
+      "ui:placeholder": "Enter text",
     },
-    "teacherCommentENG": {
-      "ui:widget": "TextAreaWidget",
+    teacherCommentENG: {
+      "ui:widget": "textarea",
       "ui:options": {
-        "rows": 4,
-        "classNames": "form-textarea-right"
+        rows: 4,
+        classNames: "form-textarea-right",
       },
-      "ui:placeholder": "Enter text"
-    }
+      "ui:placeholder": "Enter text",
+    },
   };
 
   const defaultJsonSchema: JSONSchema7 = {
@@ -52,36 +52,38 @@ export default function SchemaInput({ onSchemaGenerated, onUiSchemaGenerated }: 
         type: "number",
         title: "Unit Test Score",
         minimum: 0,
-        maximum: 100
+        maximum: 100,
       },
       recommendation: {
         type: "string",
-        title: "Recommendation"
+        title: "Recommendation",
       },
       teacherCommentENG: {
         type: "string",
-        title: "Teacher Comment (English)"
-      }
-    }
+        title: "Teacher Comment (English)",
+      },
+    },
   };
 
   // Function to generate JSON schema from UI schema
   const generateJsonSchemaFromUiSchema = (uiSchema: any): JSONSchema7 => {
     const properties: Record<string, any> = {};
     const required: string[] = [];
-    
+
     // Get field order from ui:order or extract from uiSchema keys
-    const fieldOrder = uiSchema["ui:order"] || Object.keys(uiSchema).filter(key => !key.startsWith("ui:"));
-    
+    const fieldOrder =
+      uiSchema["ui:order"] ||
+      Object.keys(uiSchema).filter((key) => !key.startsWith("ui:"));
+
     fieldOrder.forEach((fieldName: string) => {
       const fieldConfig = uiSchema[fieldName];
-      if (fieldConfig && typeof fieldConfig === 'object') {
+      if (fieldConfig && typeof fieldConfig === "object") {
         const widget = fieldConfig["ui:widget"];
-        
+
         // Determine field type based on widget
         let fieldType = "string";
         let format: string | undefined;
-        
+
         switch (widget) {
           case "NumberWidget":
             fieldType = "number";
@@ -107,31 +109,33 @@ export default function SchemaInput({ onSchemaGenerated, onUiSchemaGenerated }: 
           default:
             fieldType = "string";
         }
-        
+
         const property: any = {
           type: fieldType,
-          title: fieldName.charAt(0).toUpperCase() + fieldName.slice(1).replace(/([A-Z])/g, ' $1')
+          title:
+            fieldName.charAt(0).toUpperCase() +
+            fieldName.slice(1).replace(/([A-Z])/g, " $1"),
         };
-        
+
         if (format) {
           property.format = format;
         }
-        
+
         // Add some default constraints
         if (fieldType === "number") {
           property.minimum = 0;
           property.maximum = 100;
         }
-        
+
         properties[fieldName] = property;
         required.push(fieldName);
       }
     });
-    
+
     return {
       type: "object",
       required,
-      properties
+      properties,
     };
   };
 
@@ -139,15 +143,22 @@ export default function SchemaInput({ onSchemaGenerated, onUiSchemaGenerated }: 
     try {
       let uiSchema;
       let jsonSchema;
-      
-      if (uiSchemaText.trim() === "") {
-        // Use default UI schema if input is empty
+
+      if (uiSchemaText.trim() === "" && jsonSchemaText.trim() === "") {
+        // Use default schemas if both inputs are empty
         uiSchema = defaultUiSchema;
         jsonSchema = defaultJsonSchema;
-      } else {
-        // Parse the input UI schema
+      } else if (jsonSchemaText.trim() !== "") {
+        // Use provided JSON schema if available
+        jsonSchema = JSON.parse(jsonSchemaText);
+        // Use provided UI schema or generate from JSON schema
+        if (uiSchemaText.trim() !== "") {
+          uiSchema = JSON.parse(uiSchemaText);
+        } else {
+          uiSchema = defaultUiSchema;
+        }
+      } else if (uiSchemaText.trim() !== "") {
         uiSchema = JSON.parse(uiSchemaText);
-        // Generate JSON schema from UI schema
         jsonSchema = generateJsonSchemaFromUiSchema(uiSchema);
       }
 
@@ -157,12 +168,14 @@ export default function SchemaInput({ onSchemaGenerated, onUiSchemaGenerated }: 
       if (onSchemaGenerated) {
         onSchemaGenerated(jsonSchema);
       }
-      
+
       if (onUiSchemaGenerated) {
         onUiSchemaGenerated(uiSchema);
       }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Invalid UI schema JSON");
+      setError(
+        err instanceof Error ? err.message : "Invalid JSON schema or UI schema"
+      );
     }
   };
 
@@ -204,20 +217,29 @@ export default function SchemaInput({ onSchemaGenerated, onUiSchemaGenerated }: 
   return (
     <div style={{ maxWidth: "800px", margin: "0 auto", padding: "20px" }}>
       <div style={{ marginBottom: "20px" }}>
-        <h2 style={{ marginBottom: "16px", color: "#1f2937", fontSize: "24px", fontWeight: "600" }}>
+        <h2
+          style={{
+            marginBottom: "16px",
+            color: "#1f2937",
+            fontSize: "24px",
+            fontWeight: "600",
+          }}
+        >
           UI Schema Input
         </h2>
-        
+
         <div style={{ marginBottom: "16px" }}>
-          <label style={{ 
-            display: "block", 
-            marginBottom: "8px", 
-            fontWeight: "500", 
-            color: "#374151" 
-          }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: "8px",
+              fontWeight: "500",
+              color: "#374151",
+            }}
+          >
             Enter UI Schema JSON (leave empty to use default UI schema):
           </label>
-          
+
           <textarea
             value={uiSchemaText}
             onChange={(e) => setUiSchemaText(e.target.value)}
@@ -249,6 +271,58 @@ export default function SchemaInput({ onSchemaGenerated, onUiSchemaGenerated }: 
       "classNames": "form-textarea-right"
     },
     "ui:placeholder": "Enter text"
+  }
+}`}
+            style={inputStyle}
+          />
+        </div>
+        <h2
+          style={{
+            marginBottom: "16px",
+            color: "#1f2937",
+            fontSize: "24px",
+            fontWeight: "600",
+          }}
+        >
+          Schema Input
+        </h2>
+
+        <div style={{ marginBottom: "16px" }}>
+          <label
+            style={{
+              display: "block",
+              marginBottom: "8px",
+              fontWeight: "500",
+              color: "#374151",
+            }}
+          >
+            Enter JSON Schema (leave empty to use default or generate from UI
+            schema):
+          </label>
+
+          <textarea
+            value={jsonSchemaText}
+            onChange={(e) => setJsonSchemaText(e.target.value)}
+            placeholder={`Try this JSON schema example:
+{
+  "type": "object",
+  "required": ["name", "email", "age"],
+  "properties": {
+    "name": {
+      "type": "string",
+      "title": "Full Name"
+    },
+    "email": {
+      "type": "string",
+      "title": "Email Address",
+      "format": "email"
+    },
+    "age": {
+      "type": "number",
+      "title": "Age",
+      "minimum": 0,
+      "maximum": 120
+    }
   }
 }`}
             style={inputStyle}

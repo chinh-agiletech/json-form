@@ -273,19 +273,20 @@ export default function DynamicForm({
         showErrorList={false}
         noValidate={true}
         widgets={{ 
-          NumberWidget: CustomNumberWidget,
-          TextAreaWidget: CustomTextArea,
-          TextWidget: CustomTextWidget,
-          
-          // Additional widgets
-          CheckboxWidget: CheckboxWidget,
-          CheckboxesWidget: CheckboxesWidget,
-          SelectWidget: SelectWidget,
-          RadioWidget: RadioWidget,
-          EmailWidget: EmailWidget,
-          DateWidget: DateWidget,
-          PasswordWidget: PasswordWidget,
-          RangeWidget: RangeWidget,
+          integer: CustomNumberWidget,
+          number: CustomNumberWidget,
+          textarea: CustomTextArea,
+          text: CustomTextWidget,
+          select: SelectWidget,
+          // // Additional widgets
+          // CheckboxWidget: CheckboxWidget,
+          // CheckboxesWidget: CheckboxesWidget,
+          // SelectWidget: SelectWidget,
+          // RadioWidget: RadioWidget,
+          // EmailWidget: EmailWidget,
+          // DateWidget: DateWidget,
+          // PasswordWidget: PasswordWidget,
+          // RangeWidget: RangeWidget,
         }}
       />
 
