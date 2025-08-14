@@ -1,0 +1,36 @@
+{
+"ui:submitButtonOptions": {
+    "norender": true
+  },
+  "fullname": {
+    "ui:widget": "text",
+    "ui:options": {
+      "classNames": "form-single-col"
+    },
+    "ui:placeholder": "Nhập họ và tên"
+  },
+  "age": {
+    "ui:widget": "integer",
+    "ui:title": "Tuổi của bạn",
+    "ui:options": {
+      "rows": 4,
+      "classNames": "form-textarea-left"
+    }
+  },
+  "bio": {
+    "ui:widget": "text",
+    "ui:options": {
+      "rows": 4,
+      "classNames": "form-textarea-right"
+    },
+    "ui:placeholder": "Viết vài dòng về bạn"
+  },
+  "gender": {
+    "ui:widget": "select",
+    "ui:title": "Giới tính",
+    "ui:placeholder": "Chọn giới tính",
+    "ui:options": {
+      "classNames": "form-textarea-left"
+    }
+  }
+}

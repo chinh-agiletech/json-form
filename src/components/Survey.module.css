@@ -1,23 +1,112 @@
-.row-layout {
-  display: flex;
-  align-items: center; /* Căn giữa theo chiều dọc */
-  gap: 16px; /* Khoảng cách giữa các input */
-  margin-bottom: 16px;
-  background-color: #f9f9f9; /* Màu nền nhẹ */
-  padding: 12px; /* Thêm khoảng cách bên trong */
-  border-radius: 8px; /* Bo góc */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Đổ bóng nhẹ */
+/* Survey.module.css */
+.mySurveyContainer {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.row-layout-item {
-  flex: 1; /* Chia đều không gian */
-}
-
-.row-layout-item input {
-  width: 100%;
-  padding: 8px 12px;
-  border: 1px solid #d1d5db;
-  border-radius: 6px;
+/* Input fields styling */
+.mySurveyContainer :global(.sv-text),
+.mySurveyContainer :global(.sv-comment),
+.mySurveyContainer :global(.sv-dropdown) {
+  background: transparent !important;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 12px 16px;
   font-size: 14px;
-  box-sizing: border-box;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
+
+.mySurveyContainer input{
+  border: 1px solid #e0e0e0;
+  width: 100%;
+  border-radius: 5px;
+  padding: 12px 16px;
+}
+
+.mySurveyContainer textarea {
+  border: 1px solid #e0e0e0;
+  width: 100%;
+  border-radius: 5px;
+  padding: 12px 16px;
+}
+
+/* Input focus states */
+.mySurveyContainer :global(.sv-text:focus),
+.mySurveyContainer :global(.sv-comment:focus),
+.mySurveyContainer :global(.sv-dropdown:focus) {
+  border-color: #007acc;
+  box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
+  /* outline: none; */
+  width: 100%;
+}
+
+/* Question titles */
+.mySurveyContainer :global(.sv-title) {
+  font-weight: 600;
+  font-size: 16px;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+/* Survey body background */
+.mySurveyContainer :global(.sd-body) {
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  padding: 5px;
+}
+
+/* Question containers */
+.mySurveyContainer :global(.sd-question) {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  border: 0px solid #eeeeee;
+}
+
+/* Dropdown specific styles */
+.mySurveyContainer :global(.sv-dropdown) {
+  cursor: pointer;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+}
+
+/* Textarea specific styles */
+.mySurveyContainer :global(.sv-comment) {
+  min-height: 80px;
+  resize: vertical;
+}
+
+/* Placeholder styling */
+.mySurveyContainer :global(.sv-text::placeholder),
+.mySurveyContainer :global(.sv-comment::placeholder),
+.mySurveyContainer :global(.sv-dropdown::placeholder) {
+  color: #999;
+  font-style: italic;
+}
+
+/* Row layout improvements */
+/* .mySurveyContainer :global(.sd-row) {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-start;
+} */
+
+/* Responsive design */
+/* @media (max-width: 768px) {
+  .mySurveyContainer :global(.sd-body) {
+    padding: 16px;
+  }
+  
+  .mySurveyContainer :global(.sd-question) {
+    padding: 12px;
+  }
+  
+  .mySurveyContainer :global(.sd-row) {
+    flex-direction: column;
+    gap: 12px;
+  }
+} */

@@ -27,7 +27,7 @@ export default function SimpleForm() {
 
   const surveyRef = useRef<Model | null>(null);
 
-  const SurveyComponent = dynamic(() => import("./Survey"), { ssr: false });
+  const SurveyComponent = dynamic(() => import("./SurveyComponent"), { ssr: false });
 
   const handleSubmit = () => {
     const surveyData = surveyRef.current?.data || {};
