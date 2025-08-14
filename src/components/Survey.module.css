@@ -15,6 +15,22 @@
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
+/* Number input specific styling */
+.mySurveyContainer input[type="number"] {
+  border: 1px solid #e0e0e0;
+  width: 100%;
+  border-radius: 5px;
+  padding: 12px 16px;
+  appearance: textfield; /* Standard property */
+  -moz-appearance: textfield; /* Remove spinner in Firefox */
+}
+
+.mySurveyContainer input[type="number"]::-webkit-outer-spin-button,
+.mySurveyContainer input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 .mySurveyContainer input{
   border: 1px solid #e0e0e0;
   width: 100%;
@@ -36,7 +52,6 @@
   border-color: #007acc;
   box-shadow: 0 0 0 3px rgba(0, 122, 204, 0.1);
   /* outline: none; */
-  width: 100%;
 }
 
 /* Question titles */
@@ -51,7 +66,10 @@
 .mySurveyContainer :global(.sd-body) {
   background: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  padding: 5px;
+  padding: 20px;
+  border-radius: 8px;
+  max-width: 1000px;
+  margin: 0 auto;
 }
 
 /* Question containers */
@@ -59,19 +77,30 @@
   margin-bottom: 20px;
   padding: 16px;
   background: #fff;
-  border-radius: 8px;
-  border: 0px solid #eeeeee;
+  border: none;
+  border-radius: 6px;
+}
+
+/* Conditional questions styling */
+.mySurveyContainer :global(.sd-question[data-visible="false"]) {
+  display: none;
+}
+
+/* Page container */
+.mySurveyContainer :global(.sd-page) {
+  background: transparent;
+  padding: 0;
 }
 
 /* Dropdown specific styles */
-.mySurveyContainer :global(.sv-dropdown) {
+/* .mySurveyContainer :global(.sv-dropdown) {
   cursor: pointer;
   background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
   background-repeat: no-repeat;
   background-position: right 12px center;
   background-size: 16px;
   padding-right: 40px;
-}
+} */
 
 /* Textarea specific styles */
 .mySurveyContainer :global(.sv-comment) {

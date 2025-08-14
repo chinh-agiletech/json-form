@@ -5,7 +5,7 @@ import SimpleForm from "../components/SimpleForm";
 export default function Home() {
 
   return (
-    <div>
+    <div className="mt-10">
         <SimpleForm />
     </div>
   );
