@@ -4,7 +4,7 @@ import "survey-core/survey-core.css";
 import { Model } from "survey-core";
 import { Survey } from "survey-react-ui";
 import { surveyJson } from "../json/survey";
-import styles from "./survey.module.css";
+import styles from "./Survey.module.css";
 
 interface SurveyProps {
   surveyRef: React.MutableRefObject<Model | null>;
